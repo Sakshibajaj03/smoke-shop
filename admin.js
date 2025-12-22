@@ -254,12 +254,14 @@ async function handleBrandSubmit(e) {
         
         if (editingId) {
             await db.collection('brands').doc(editingId).update(brandData);
-            statusDiv.textContent = 'Brand updated successfully!';
+            console.log('Brand updated successfully in Firebase');
+            statusDiv.textContent = 'Brand updated successfully! Changes will reflect on the index page automatically.';
         } else {
             brandData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
             brandData.displayOrder = 1; // Default display order for new brands
             await db.collection('brands').add(brandData);
-            statusDiv.textContent = 'Brand added successfully!';
+            console.log('Brand added successfully to Firebase');
+            statusDiv.textContent = 'Brand added successfully! Changes will reflect on the index page automatically.';
         }
         
         statusDiv.className = 'status-message success';
@@ -428,11 +430,13 @@ async function handleFlavourSubmit(e) {
         
         if (editingId) {
             await db.collection('flavours').doc(editingId).update(flavourData);
-            statusDiv.textContent = 'Flavour updated successfully!';
+            console.log('Flavour updated successfully in Firebase');
+            statusDiv.textContent = 'Flavour updated successfully! Changes will reflect on the index page automatically.';
         } else {
             flavourData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
             await db.collection('flavours').add(flavourData);
-            statusDiv.textContent = 'Flavour added successfully!';
+            console.log('Flavour added successfully to Firebase');
+            statusDiv.textContent = 'Flavour added successfully! Changes will reflect on the index page automatically.';
         }
         
         statusDiv.className = 'status-message success';
@@ -569,11 +573,13 @@ async function handleProductSubmit(e) {
         
         if (editingId) {
             await db.collection('products').doc(editingId).update(productData);
-            statusDiv.textContent = 'Product updated successfully!';
+            console.log('Product updated successfully in Firebase');
+            statusDiv.textContent = 'Product updated successfully! Changes will reflect on the index page automatically.';
         } else {
             productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
             await db.collection('products').add(productData);
-            statusDiv.textContent = 'Product added successfully!';
+            console.log('Product added successfully to Firebase');
+            statusDiv.textContent = 'Product added successfully! Changes will reflect on the index page automatically.';
         }
         
         statusDiv.className = 'status-message success';
@@ -2084,8 +2090,15 @@ async function deleteBrand(brandId) {
     if (!confirm('Are you sure you want to delete this brand?')) return;
     
     try {
+        // Delete the brand document
         await db.collection('brands').doc(brandId).delete();
-        alert('Brand deleted successfully!');
+        
+        // The onSnapshot listener will automatically update the admin panel
+        // The index page will also automatically update via its onSnapshot listener
+        console.log('Brand deleted successfully from Firebase');
+        
+        // Show success message
+        alert('Brand deleted successfully! The changes will be reflected on the index page automatically.');
     } catch (error) {
         console.error('Error deleting brand:', error);
         alert('Error deleting brand: ' + error.message);
@@ -2097,8 +2110,15 @@ async function deleteFlavour(flavourId) {
     if (!confirm('Are you sure you want to delete this flavour?')) return;
     
     try {
+        // Delete the flavour document
         await db.collection('flavours').doc(flavourId).delete();
-        alert('Flavour deleted successfully!');
+        
+        // The onSnapshot listener will automatically update the admin panel
+        // The index page will also automatically update via its onSnapshot listener
+        console.log('Flavour deleted successfully from Firebase');
+        
+        // Show success message
+        alert('Flavour deleted successfully! The changes will be reflected on the index page automatically.');
     } catch (error) {
         console.error('Error deleting flavour:', error);
         alert('Error deleting flavour: ' + error.message);
@@ -2110,8 +2130,15 @@ async function deleteProduct(productId) {
     if (!confirm('Are you sure you want to delete this product?')) return;
     
     try {
+        // Delete the product document
         await db.collection('products').doc(productId).delete();
-        alert('Product deleted successfully!');
+        
+        // The onSnapshot listener will automatically update the admin panel
+        // The index page will also automatically update via its onSnapshot listener
+        console.log('Product deleted successfully from Firebase');
+        
+        // Show success message
+        alert('Product deleted successfully! The changes will be reflected on the index page automatically.');
     } catch (error) {
         console.error('Error deleting product:', error);
         alert('Error deleting product: ' + error.message);

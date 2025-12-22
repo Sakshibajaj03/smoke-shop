@@ -88,7 +88,8 @@
         .fixed-admin-btn,
         .fixed-back-btn {
             position: fixed;
-            z-index: 1000;
+            z-index: 1001;
+            pointer-events: auto;
         }
 
         .fixed-admin-btn {
@@ -112,6 +113,7 @@
             border-radius: 8px;
             font-weight: 600;
             transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
         .admin-btn-link {
@@ -135,15 +137,20 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            position: relative;
         }
 
         .products-header {
             background: #FFFFFF;
             color: #1E293B;
             padding: 1.5rem 2.5rem;
+            padding-left: calc(2.5rem + 220px);
+            padding-right: calc(2.5rem + 180px);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             z-index: 10;
             border-bottom: 1px solid #E2E8F0;
+            flex-shrink: 0;
+            position: relative;
         }
 
         .header-content {
@@ -154,6 +161,8 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 1.5rem;
+            width: 100%;
+            position: relative;
         }
 
         .brand-title {
@@ -187,6 +196,7 @@
             display: flex;
             overflow: hidden;
             background: #F5F7FA;
+            min-height: 0;
         }
 
         /* Left Sidebar - Products List */
@@ -407,7 +417,7 @@
             background: #94A3B8;
         }
 
-        /* Tablet and Mobile Responsive Adjustments */
+        /* Responsive Adjustments for All Devices */
         
         /* Large Tablets (1024px and below) */
         @media (max-width: 1024px) {
@@ -436,20 +446,50 @@
 
         /* Tablets (768px and below) */
         @media (max-width: 768px) {
+            .fixed-admin-btn {
+                top: 10px;
+                right: 10px;
+            }
+
+            .fixed-back-btn {
+                top: 10px;
+                left: 10px;
+            }
+
+            .admin-btn-link,
+            .back-btn-link {
+                padding: 0.6rem 0.9rem;
+                font-size: 0.9rem;
+            }
+
+            .admin-btn-text,
+            .back-btn-text {
+                display: none;
+            }
+
+            .admin-btn-link i,
+            .back-btn-link i {
+                margin: 0;
+            }
+
             .products-header {
-                padding: 1.25rem 1.5rem;
+                padding: 1rem 1.25rem;
+                padding-top: 70px;
+                padding-left: calc(1.25rem + 50px);
+                padding-right: calc(1.25rem + 50px);
             }
 
             .header-content {
                 gap: 1rem;
+                width: 100%;
             }
 
             .brand-title {
-                font-size: 1.5rem;
+                font-size: 1.4rem;
             }
 
             .brand-title i {
-                font-size: 1.25rem;
+                font-size: 1.2rem;
             }
 
             .products-count {
@@ -459,18 +499,22 @@
 
             .master-detail-container {
                 flex-direction: column;
+                height: calc(100vh - 140px);
+                min-height: 0;
             }
 
             .products-sidebar {
                 width: 100%;
                 height: auto;
-                max-height: 300px;
+                max-height: 35vh;
+                min-height: 200px;
                 border-right: none;
                 border-bottom: 1px solid #E2E8F0;
+                flex-shrink: 0;
             }
 
             .sidebar-header {
-                padding: 1.5rem 1.5rem;
+                padding: 1.25rem 1.5rem;
             }
 
             .sidebar-title {
@@ -478,7 +522,7 @@
             }
 
             .product-list-item {
-                padding: 1.25rem 1.5rem;
+                padding: 1.1rem 1.5rem;
             }
 
             .product-list-item.active {
@@ -487,7 +531,9 @@
 
             .flavors-display-area {
                 padding: 1.5rem;
-                height: calc(100vh - 200px);
+                flex: 1;
+                min-height: 0;
+                overflow-y: auto;
             }
 
             .flavors-grid-container {
@@ -496,20 +542,20 @@
             }
 
             .selected-product-header {
-                padding: 1.75rem 1.5rem;
-                margin-bottom: 1.5rem;
+                padding: 1.5rem 1.25rem;
+                margin-bottom: 1.25rem;
             }
 
             .selected-product-name {
-                font-size: 1.75rem;
+                font-size: 1.65rem;
             }
 
             .flavor-card {
-                padding: 1.75rem;
+                padding: 1.5rem;
             }
 
             .flavor-name-display {
-                font-size: 1.35rem;
+                font-size: 1.3rem;
             }
 
             .flavor-id-display {
@@ -521,11 +567,19 @@
         /* Small Tablets and Large Mobile (640px and below) */
         @media (max-width: 640px) {
             .products-header {
-                padding: 1rem 1.25rem;
+                padding: 0.875rem 1rem;
+                padding-top: 65px;
+                padding-left: calc(1rem + 45px);
+                padding-right: calc(1rem + 45px);
+            }
+
+            .header-content {
+                width: 100%;
+                max-width: 100%;
             }
 
             .brand-title {
-                font-size: 1.35rem;
+                font-size: 1.3rem;
             }
 
             .products-count {
@@ -533,16 +587,21 @@
                 font-size: 0.85rem;
             }
 
+            .master-detail-container {
+                height: calc(100vh - 130px);
+            }
+
             .products-sidebar {
-                max-height: 280px;
+                max-height: 30vh;
+                min-height: 180px;
             }
 
             .sidebar-header {
-                padding: 1.25rem 1.25rem;
+                padding: 1.1rem 1.25rem;
             }
 
             .product-list-item {
-                padding: 1.1rem 1.25rem;
+                padding: 1rem 1.25rem;
             }
 
             .product-list-item-name {
@@ -559,8 +618,8 @@
             }
 
             .selected-product-header {
-                padding: 1.5rem 1.25rem;
-                margin-bottom: 1.25rem;
+                padding: 1.25rem 1rem;
+                margin-bottom: 1rem;
             }
 
             .selected-product-name {
@@ -578,18 +637,40 @@
 
         /* Mobile Devices (480px and below) */
         @media (max-width: 480px) {
+            .fixed-admin-btn {
+                top: 8px;
+                right: 8px;
+            }
+
+            .fixed-back-btn {
+                top: 8px;
+                left: 8px;
+            }
+
+            .admin-btn-link,
+            .back-btn-link {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.85rem;
+            }
+
             .products-header {
-                padding: 0.875rem 1rem;
+                padding: 0.75rem 1rem;
+                padding-top: 60px;
+                padding-left: calc(1rem + 40px);
+                padding-right: calc(1rem + 40px);
             }
 
             .header-content {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 0.75rem;
+                width: 100%;
+                max-width: 100%;
             }
 
             .brand-title {
-                font-size: 1.25rem;
+                font-size: 1.2rem;
+                width: 100%;
             }
 
             .products-count {
@@ -597,12 +678,17 @@
                 font-size: 0.8rem;
             }
 
+            .master-detail-container {
+                height: calc(100vh - 120px);
+            }
+
             .products-sidebar {
-                max-height: 250px;
+                max-height: 28vh;
+                min-height: 160px;
             }
 
             .sidebar-header {
-                padding: 1rem;
+                padding: 0.875rem 1rem;
             }
 
             .sidebar-title {
@@ -610,7 +696,7 @@
             }
 
             .product-list-item {
-                padding: 1rem;
+                padding: 0.875rem 1rem;
             }
 
             .product-list-item-name {
@@ -665,11 +751,14 @@
         /* Small Mobile Devices (360px and below) */
         @media (max-width: 360px) {
             .products-header {
-                padding: 0.75rem 0.875rem;
+                padding: 0.65rem 0.875rem;
+                padding-top: 55px;
+                padding-left: calc(0.875rem + 35px);
+                padding-right: calc(0.875rem + 35px);
             }
 
             .brand-title {
-                font-size: 1.15rem;
+                font-size: 1.1rem;
             }
 
             .products-count {
@@ -677,12 +766,21 @@
                 font-size: 0.75rem;
             }
 
+            .master-detail-container {
+                height: calc(100vh - 110px);
+            }
+
+            .products-sidebar {
+                max-height: 25vh;
+                min-height: 140px;
+            }
+
             .sidebar-header {
-                padding: 0.875rem;
+                padding: 0.75rem 0.875rem;
             }
 
             .product-list-item {
-                padding: 0.875rem;
+                padding: 0.75rem 0.875rem;
             }
 
             .flavors-display-area {
@@ -694,7 +792,7 @@
             }
 
             .selected-product-name {
-                font-size: 1.25rem;
+                font-size: 1.2rem;
             }
 
             .flavor-card {
@@ -708,30 +806,62 @@
 
         /* Landscape Mobile Orientation */
         @media (max-width: 768px) and (orientation: landscape) {
+            .products-header {
+                padding-top: 60px;
+            }
+
+            .master-detail-container {
+                height: calc(100vh - 120px);
+            }
+
             .products-sidebar {
-                max-height: 200px;
+                max-height: 40vh;
+                min-height: 180px;
             }
 
             .flavors-display-area {
-                height: calc(100vh - 150px);
+                flex: 1;
+                min-height: 0;
+            }
+        }
+
+        /* Prevent text overflow */
+        .brand-title span,
+        .product-list-item-name,
+        .selected-product-name,
+        .flavor-name-display {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Desktop - Ensure proper spacing for fixed buttons */
+        @media (min-width: 769px) {
+            .products-header {
+                padding-left: calc(2.5rem + 220px);
+                padding-right: calc(2.5rem + 180px);
+            }
+
+            .header-content {
+                padding-left: 0;
+                padding-right: 0;
             }
         }
 
         /* Responsive Fixed Buttons */
         @media (max-width: 768px) {
             .fixed-admin-btn {
-                top: 15px;
-                right: 15px;
+                top: 10px;
+                right: 10px;
             }
 
             .fixed-back-btn {
-                top: 15px;
-                left: 15px;
+                top: 10px;
+                left: 10px;
             }
 
             .admin-btn-link,
             .back-btn-link {
-                padding: 0.6rem 1rem;
+                padding: 0.6rem 0.9rem;
                 font-size: 0.9rem;
             }
 
@@ -748,13 +878,13 @@
 
         @media (max-width: 480px) {
             .fixed-admin-btn {
-                top: 10px;
-                right: 10px;
+                top: 8px;
+                right: 8px;
             }
 
             .fixed-back-btn {
-                top: 10px;
-                left: 10px;
+                top: 8px;
+                left: 8px;
             }
 
             .admin-btn-link,
@@ -764,16 +894,29 @@
             }
         }
 
-        /* Ensure header doesn't overlap with buttons on mobile */
+        /* Ensure header doesn't overlap with buttons and takes full width */
         @media (max-width: 768px) {
             .products-header {
-                padding-top: 70px;
+                padding-top: 65px;
+                padding-left: 1.25rem;
+                padding-right: 1.25rem;
+            }
+
+            .header-content {
+                width: 100%;
             }
         }
 
         @media (max-width: 480px) {
             .products-header {
-                padding-top: 60px;
+                padding-top: 55px;
+                padding-left: 1rem;
+                padding-right: 1rem;
+                padding-bottom: 1rem;
+            }
+
+            .header-content {
+                width: 100%;
             }
         }
     </style>
