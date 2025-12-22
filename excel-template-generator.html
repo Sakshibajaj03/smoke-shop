@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Import Template Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 2rem;
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .instructions {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+        .instructions h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        .instructions ol {
+            margin-left: 1.5rem;
+            line-height: 1.8;
+        }
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+        .template-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+        }
+        .template-section h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 0.75rem;
+            border: 1px solid #e0e0e0;
+        }
+        table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .required {
+            color: #f44336;
+        }
+        .optional {
+            color: #666;
+            font-style: italic;
+        }
+        .btn-download {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Excel Import Template Generator</h1>
+        
+        <div class="instructions">
+            <h2>📋 How to Use This Template</h2>
+            <ol>
+                <li>Click the "Download Excel Template" button below to download a ready-to-use template file</li>
+                <li>Open the downloaded file in Microsoft Excel or Google Sheets</li>
+                <li>Fill in your data following the structure shown below</li>
+                <li>Save the file as <code>.xlsx</code> format</li>
+                <li>Upload the file in the Admin Panel → Database Upload section</li>
+            </ol>
+        </div>
+
+        <!-- Products Sheet Template -->
+        <div class="template-section">
+            <h3>📦 Sheet 1: "products" (Required Fields)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Field Name</th>
+                        <th>Type</th>
+                        <th>Required</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>name</code></td>
+                        <td>Text</td>
+                        <td class="required">Yes</td>
+                        <td>Product name</td>
+                        <td>Vape Pod Pro 3000</td>
+                    </tr>
+                    <tr>
+                        <td><code>price</code></td>
+                        <td>Number</td>
+                        <td class="required">Yes</td>
+                        <td>Product price (no $ sign)</td>
+                        <td>29.99</td>
+                    </tr>
+                    <tr>
+                        <td><code>brand</code></td>
+                        <td>Text</td>
+                        <td class="required">Yes</td>
+                        <td>Brand name (must exist in brands sheet or be created)</td>
+                        <td>Foger</td>
+                    </tr>
+                    <tr>
+                        <td><code>flavour</code></td>
+                        <td>Text</td>
+                        <td class="required">Yes</td>
+                        <td>Comma-separated flavor names or single flavor</td>
+                        <td>Strawberry, Mango</td>
+                    </tr>
+                    <tr>
+                        <td><code>flavour_ids</code></td>
+                        <td>Text</td>
+                        <td class="optional">No</td>
+                        <td>Comma-separated flavor IDs matching the flavours (same order). Leave empty to auto-generate.</td>
+                        <td>FLAV-001, FLAV-002</td>
+                    </tr>
+                    <tr>
+                        <td><code>description</code></td>
+                        <td>Text</td>
+                        <td class="required">Yes</td>
+                        <td>Product description</td>
+                        <td>Premium vape pod with 3000 puffs</td>
+                    </tr>
+                    <tr>
+                        <td><code>stock</code></td>
+                        <td>Number</td>
+                        <td class="optional">No</td>
+                        <td>Stock quantity (default: 0)</td>
+                        <td>50</td>
+                    </tr>
+                    <tr>
+                        <td><code>status</code></td>
+                        <td>Text</td>
+                        <td class="optional">No</td>
+                        <td>Status: Available, Out of Stock, Coming Soon</td>
+                        <td>Available</td>
+                    </tr>
+                    <tr>
+                        <td><code>featured</code></td>
+                        <td>Boolean</td>
+                        <td class="optional">No</td>
+                        <td>Mark as featured: TRUE/FALSE or YES/NO</td>
+                        <td>TRUE</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Brands Sheet Template -->
+        <div class="template-section">
+            <h3>🏷️ Sheet 2: "brands"</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Field Name</th>
+                        <th>Type</th>
+                        <th>Required</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>name</code></td>
+                        <td>Text</td>
+                        <td class="required">Yes</td>
+                        <td>Brand name (unique)</td>
+                        <td>Foger</td>
+                    </tr>
+                    <tr>
+                        <td><code>description</code></td>
+                        <td>Text</td>
+                        <td class="optional">No</td>
+                        <td>Brand description</td>
+                        <td>Premium vape brand</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Flavours Sheet Template -->
+        <div class="template-section">
+            <h3>🍬 Sheet 3: "flavours"</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Field Name</th>
+                        <th>Type</th>
+                        <th>Required</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>name</code></td>
+                        <td>Text</td>
+                        <td class="required">Yes</td>
+                        <td>Flavor name</td>
+                        <td>Strawberry</td>
+                    </tr>
+                    <tr>
+                        <td><code>flavorId</code></td>
+                        <td>Text</td>
+                        <td class="optional">No</td>
+                        <td>Custom flavor ID (auto-generated if empty)</td>
+                        <td>FLAV-001</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="note">
+            <strong>⚠️ Important Notes:</strong>
+            <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                <li>Sheet names must be exactly: <code>products</code>, <code>brands</code>, <code>flavours</code> (or variations like "product", "brand", "flavor")</li>
+                <li>First row must contain the field names (headers)</li>
+                <li>Multiple flavors can be comma-separated in the <code>flavour</code> column: <code>Strawberry, Mango, Apple</code></li>
+                <li>Boolean fields (featured) accept: TRUE/FALSE, YES/NO, 1/0</li>
+                <li>Price should be a number without currency symbols</li>
+                <li>If a brand or flavor doesn't exist, it will be auto-created during import</li>
+            </ul>
+        </div>
+
+        <button class="btn-download" onclick="downloadTemplate()">
+            <i class="fas fa-download"></i> Download Excel Template
+        </button>
+
+        <div style="margin-top: 2rem; padding: 1.5rem; background: #e3f2fd; border-radius: 8px;">
+            <h3 style="color: #1976D2; margin-bottom: 1rem;">Example Data Preview</h3>
+            <p style="margin-bottom: 1rem;"><strong>Products Sheet:</strong></p>
+            <table style="margin-bottom: 1.5rem;">
+                <thead>
+                    <tr>
+                        <th>name</th>
+                        <th>price</th>
+                        <th>brand</th>
+                        <th>flavour</th>
+                        <th>flavour_ids</th>
+                        <th>description</th>
+                        <th>stock</th>
+                        <th>status</th>
+                        <th>featured</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Vape Pod Pro 3000</td>
+                        <td>29.99</td>
+                        <td>Foger</td>
+                        <td>Strawberry, Mango</td>
+                        <td>FLAV-001, FLAV-002</td>
+                        <td>Premium disposable vape pod</td>
+                        <td>50</td>
+                        <td>Available</td>
+                        <td>TRUE</td>
+                    </tr>
+                    <tr>
+                        <td>Elf Bar 5000</td>
+                        <td>34.99</td>
+                        <td>Elf Bar</td>
+                        <td>Blueberry, Ice</td>
+                        <td><em>(empty - auto-generate)</em></td>
+                        <td>Long-lasting vape device</td>
+                        <td>30</td>
+                        <td>Available</td>
+                        <td>FALSE</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p style="margin-bottom: 1rem;"><strong>Brands Sheet:</strong></p>
+            <table style="margin-bottom: 1.5rem;">
+                <thead>
+                    <tr>
+                        <th>name</th>
+                        <th>description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Foger</td>
+                        <td>Premium vape products</td>
+                    </tr>
+                    <tr>
+                        <td>Elf Bar</td>
+                        <td>Popular vape brand</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p style="margin-bottom: 1rem;"><strong>Flavours Sheet:</strong></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>name</th>
+                        <th>flavorId</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Strawberry</td>
+                        <td>FLAV-001</td>
+                    </tr>
+                    <tr>
+                        <td>Mango</td>
+                        <td>FLAV-002</td>
+                    </tr>
+                    <tr>
+                        <td>Blueberry</td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function downloadTemplate() {
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+            
+            // Products Sheet Data
+            const productsData = [
+                // Headers
+                ['name', 'price', 'brand', 'flavour', 'flavour_ids', 'description', 'stock', 'status', 'featured'],
+                // Example rows
+                ['Vape Pod Pro 3000', 29.99, 'Foger', 'Strawberry, Mango', 'FLAV-001, FLAV-002', 'Premium disposable vape pod with 3000 puffs', 50, 'Available', 'TRUE'],
+                ['Elf Bar 5000', 34.99, 'Elf Bar', 'Blueberry, Ice', '', 'Long-lasting vape device with 5000 puffs', 30, 'Available', 'FALSE'],
+                ['Product Name Here', 19.99, 'Brand Name', 'Flavor1, Flavor2', 'CUSTOM-123, CUSTOM-456', 'Product description', 25, 'Available', 'TRUE']
+            ];
+            
+            // Brands Sheet Data
+            const brandsData = [
+                // Headers
+                ['name', 'description'],
+                // Example rows
+                ['Foger', 'Premium vape products brand'],
+                ['Elf Bar', 'Popular vape brand worldwide'],
+                ['Brand Name Here', 'Brand description']
+            ];
+            
+            // Flavours Sheet Data
+            const flavoursData = [
+                // Headers
+                ['name', 'flavorId'],
+                // Example rows
+                ['Strawberry', 'FLAV-001'],
+                ['Mango', 'FLAV-002'],
+                ['Blueberry', ''],
+                ['Ice', 'FLAV-004']
+            ];
+            
+            // Create worksheets
+            const wsProducts = XLSX.utils.aoa_to_sheet(productsData);
+            const wsBrands = XLSX.utils.aoa_to_sheet(brandsData);
+            const wsFlavours = XLSX.utils.aoa_to_sheet(flavoursData);
+            
+            // Set column widths for better visibility
+            wsProducts['!cols'] = [
+                { wch: 25 }, // name
+                { wch: 10 }, // price
+                { wch: 15 }, // brand
+                { wch: 20 }, // flavour
+                { wch: 25 }, // flavour_ids
+                { wch: 35 }, // description
+                { wch: 10 }, // stock
+                { wch: 15 }, // status
+                { wch: 10 }  // featured
+            ];
+            
+            wsBrands['!cols'] = [
+                { wch: 20 }, // name
+                { wch: 30 }  // description
+            ];
+            
+            wsFlavours['!cols'] = [
+                { wch: 20 }, // name
+                { wch: 15 }  // flavorId
+            ];
+            
+            // Add worksheets to workbook
+            XLSX.utils.book_append_sheet(wb, wsProducts, 'products');
+            XLSX.utils.book_append_sheet(wb, wsBrands, 'brands');
+            XLSX.utils.book_append_sheet(wb, wsFlavours, 'flavours');
+            
+            // Download file
+            XLSX.writeFile(wb, 'import_template.xlsx');
+            
+            alert('✅ Template downloaded successfully!\n\nFile name: import_template.xlsx\n\nOpen this file in Excel, fill in your data, and save it. Then upload it in the Admin Panel.');
+        }
+    </script>
+</body>
+</html>
+

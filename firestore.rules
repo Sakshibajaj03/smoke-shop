@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Sliders collection - allow read to all, write to all
+    match /sliders/{sliderId} {
+      allow read, write: if true;
+    }
+    
+    // Brands collection - allow read to all, write to all
+    match /brands/{brandId} {
+      allow read, write: if true;
+    }
+    
+    // Flavours collection - allow read to all, write to all
+    match /flavours/{flavourId} {
+      allow read, write: if true;
+    }
+    
+    // Products collection - allow read to all, write to all
+    match /products/{productId} {
+      allow read, write: if true;
+    }
+    
+    // Allow read access to all other collections for public viewing
+    match /{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
+
+
+
+

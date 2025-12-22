@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - E-Commerce Store</title>
+    <link rel="stylesheet" href="admin.css">
+    <!-- Chart.js for Data Visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+    <!-- CORS Warning Banner -->
+    <div id="corsWarning" style="display: none; background: #ff4444; color: white; padding: 1rem; text-align: center; font-weight: bold; position: fixed; top: 0; left: 0; right: 0; z-index: 10000; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+        ⚠️ CORS ERROR: You're opening this file directly (file://). Please use a local web server! 
+        <a href="#" onclick="showServerInstructions()" style="color: yellow; text-decoration: underline; margin-left: 10px;">Click for instructions</a>
+        <button onclick="document.getElementById('corsWarning').style.display='none'" style="margin-left: 20px; padding: 5px 10px; background: white; color: #ff4444; border: none; border-radius: 5px; cursor: pointer;">×</button>
+    </div>
+    <div class="admin-container">
+        <!-- Horizontal Navigation Bar -->
+        <header class="admin-header">
+            <div class="admin-header-content">
+                <div class="admin-logo">
+                    <h2>Admin Panel</h2>
+                </div>
+                <nav class="admin-nav">
+                    <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                        <span>📊</span> Dashboard
+                    </a>
+                    <a href="#brands" class="nav-item" data-section="brands">
+                        <span>🏷️</span> Brands
+                    </a>
+                    <a href="#flavours" class="nav-item" data-section="flavours">
+                        <span>🍬</span> Flavours
+                    </a>
+                    <a href="#products" class="nav-item" data-section="products">
+                        <span>📦</span> Products
+                    </a>
+                    <a href="#database" class="nav-item" data-section="database">
+                        <span>📤</span> Database Upload
+                    </a>
+                </nav>
+                <div class="admin-header-actions">
+                    <a href="index.html" class="view-site-btn">View Site</a>
+                    <button onclick="adminLogout()" class="logout-btn" style="background: rgba(255, 255, 255, 0.15); color: var(--white); border: 1px solid rgba(255, 255, 255, 0.25); padding: 0.7rem 1.5rem; border-radius: 5px; cursor: pointer; transition: all 0.3s; white-space: nowrap; margin-left: 0.5rem;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section active">
+                <div class="dashboard-header">
+                    <h2>Dashboard Overview</h2>
+                    <div class="dashboard-actions">
+                        <button onclick="exportDashboardData()" class="btn-export-dashboard">
+                            <i class="fas fa-download"></i> Export Data
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Key Metrics Cards -->
+                <div class="key-metrics-grid">
+                    <div class="metric-card primary">
+                        <div class="metric-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3 class="metric-value" id="totalProducts">0</h3>
+                            <p class="metric-label">Total Products</p>
+                            <div class="metric-change">
+                                <i class="fas fa-arrow-up"></i>
+                                <span id="featuredProducts">0</span> featured
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-card success">
+                        <div class="metric-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3 class="metric-value" id="totalValue">$0.00</h3>
+                            <p class="metric-label">Inventory Value</p>
+                            <div class="metric-change">
+                                <i class="fas fa-box"></i>
+                                <span id="totalStock">0</span> units
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-card info">
+                        <div class="metric-icon">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3 class="metric-value" id="totalBrands">0</h3>
+                            <p class="metric-label">Brands</p>
+                            <div class="metric-change">
+                                <i class="fas fa-palette"></i>
+                                <span id="totalFlavours">0</span> flavors
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-card warning live-visitors-card" id="liveVisitorsCard">
+                        <div class="metric-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3 class="metric-value" id="liveVisitors">0</h3>
+                            <p class="metric-label">Live Visitors</p>
+                            <div class="metric-change live-indicator">
+                                <span class="live-dot"></span>
+                                <span>Active Now</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts and Analytics Section -->
+                <div class="dashboard-charts-grid">
+                    <!-- Product Status Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-pie"></i> Product Status</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Brand Distribution Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-bar"></i> Brand Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="brandChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Inventory Health -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-heartbeat"></i> Inventory Health</h3>
+                        </div>
+                        <div class="inventory-health" id="inventoryHealth">
+                            <div class="loading">Loading...</div>
+                        </div>
+                    </div>
+
+                    <!-- Price Analysis -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-dollar-sign"></i> Price Analysis</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="priceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Tables Section -->
+                <div class="dashboard-tables-grid">
+                    <!-- Top Products -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h3><i class="fas fa-trophy"></i> Top Products by Value</h3>
+                            <a href="#products" class="view-all-link">View All <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                        <div class="table-content" id="topProductsTable">
+                            <div class="loading">Loading...</div>
+                        </div>
+                    </div>
+
+                    <!-- Low Stock Alerts -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h3><i class="fas fa-exclamation-triangle"></i> Low Stock Alerts</h3>
+                            <span class="alert-badge" id="lowStockCount">0</span>
+                        </div>
+                        <div class="table-content" id="lowStockTable">
+                            <div class="loading">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions-section">
+                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                    <div class="quick-actions-grid">
+                        <a href="#products" class="quick-action-card" data-section="products">
+                            <div class="quick-action-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <span>Add Product</span>
+                        </a>
+                        <a href="#brands" class="quick-action-card" data-section="brands">
+                            <div class="quick-action-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                                <i class="fas fa-tag"></i>
+                            </div>
+                            <span>Add Brand</span>
+                        </a>
+                        <a href="#flavours" class="quick-action-card" data-section="flavours">
+                            <div class="quick-action-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                                <i class="fas fa-palette"></i>
+                            </div>
+                            <span>Add Flavor</span>
+                        </a>
+                        <a href="index.html" class="quick-action-card" target="_blank">
+                            <div class="quick-action-icon" style="background: linear-gradient(135deg, #fa709a, #fee140);">
+                                <i class="fas fa-external-link-alt"></i>
+                            </div>
+                            <span>View Website</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Brands Section -->
+            <section id="brands" class="content-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2 style="margin: 0;">Manage Brands</h2>
+                    <button type="button" onclick="openBrandModal()" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-plus"></i>
+                        <span>Add New Brand</span>
+                    </button>
+                </div>
+                <div class="items-list" id="brandsList">
+                    <!-- Brands list will be dynamically loaded -->
+                </div>
+            </section>
+
+            <!-- Brand Modal Popup -->
+            <div id="brandModal" class="product-modal">
+                <div class="product-modal-overlay" onclick="closeBrandModal()"></div>
+                <div class="product-modal-content">
+                    <div class="product-modal-header">
+                        <h2 id="brandModalTitle">
+                            <span>Add New Brand</span>
+                        </h2>
+                        <button type="button" class="product-modal-close" onclick="closeBrandModal()" title="Close">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="product-modal-body">
+                        <form id="brandForm" class="admin-form">
+                            <div class="form-group">
+                                <label>Brand Name</label>
+                                <input type="text" id="brandName" required class="input-field">
+                            </div>
+                            <div class="form-group">
+                                <label>Description (Optional)</label>
+                                <textarea id="brandDescription" class="textarea-field" rows="3"></textarea>
+                            </div>
+                            <div id="brandStatus" class="status-message"></div>
+                            <div class="product-modal-actions">
+                                <button type="button" class="btn btn-secondary" onclick="closeBrandModal()">Cancel</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <span id="submitBrandButtonText">Add Brand</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flavours Section -->
+            <section id="flavours" class="content-section">
+                <div class="flavors-header-section">
+                    <div class="flavors-title-group">
+                        <div class="palette-icon">
+                            <span class="palette-dot" style="background: #3B82F6;"></span>
+                            <span class="palette-dot" style="background: #8B5CF6;"></span>
+                            <span class="palette-dot" style="background: #10B981;"></span>
+                            <span class="palette-dot" style="background: #F59E0B;"></span>
+                        </div>
+                        <div>
+                            <h2 class="flavors-main-title">Flavors Management</h2>
+                            <p class="flavors-subtitle">Add and manage product flavors</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flavors-actions-container">
+                    <button type="button" class="btn-add-flavor" onclick="openFlavorModal()">
+                        <i class="fas fa-plus"></i> Add Flavor
+                    </button>
+                    <button type="button" class="btn-remove-all-flavors" onclick="removeAllFlavors()">
+                        <i class="fas fa-trash-alt"></i> Remove All Flavors
+                    </button>
+                </div>
+                
+                <div class="flavors-list-container" id="flavoursList">
+                    <!-- Flavours list will be dynamically loaded -->
+                </div>
+            </section>
+
+            <!-- Flavour Modal Popup -->
+            <div id="flavorModal" class="product-modal">
+                <div class="product-modal-overlay" onclick="closeFlavorModal()"></div>
+                <div class="product-modal-content">
+                    <div class="product-modal-header">
+                        <h2 id="flavorModalTitle">
+                            <span>Add New Flavor</span>
+                        </h2>
+                        <button type="button" class="product-modal-close" onclick="closeFlavorModal()" title="Close">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="product-modal-body">
+                        <form id="flavourForm" class="admin-form">
+                            <div class="form-group">
+                                <label>Brand <span style="color: var(--medium-gray); font-weight: normal; font-size: 0.9rem;">(Optional)</span></label>
+                                <select id="flavourBrand" class="input-field">
+                                    <option value="">Select Brand</option>
+                                </select>
+                                <small style="color: var(--text-color); font-size: 0.85rem; display: block; margin-top: 0.5rem;">
+                                    <i class="fas fa-info-circle"></i> Each flavor is unique per brand. The same flavor name can exist for different brands.
+                                </small>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Flavour Name</label>
+                                    <input type="text" id="flavourName" class="input-field" placeholder="e.g., Watermelon Ice">
+                                    <small style="color: var(--text-color); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                                        Must be unique within the selected brand
+                                    </small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Flavor ID <span style="color: var(--medium-gray); font-weight: normal;">(Optional)</span></label>
+                                    <input type="text" id="flavourId" class="input-field" placeholder="Auto-generated if empty">
+                                    <small style="color: var(--text-color); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                                        Leave empty to auto-generate a unique ID for this brand
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Flavour Image</label>
+                                <input type="file" id="flavourImage" accept="image/*" class="file-input">
+                                <div class="preview-container">
+                                    <img id="previewFlavour" src="" alt="Preview" class="preview-img" style="display: none;">
+                                </div>
+                            </div>
+                            <div id="flavourStatus" class="status-message"></div>
+                            <div class="product-modal-actions">
+                                <button type="button" class="btn btn-secondary" onclick="closeFlavorModal()">Cancel</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <span id="submitFlavorButtonText">Save Flavour</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Section -->
+            <section id="products" class="content-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2 style="margin: 0;">Manage Products</h2>
+                    <button type="button" onclick="openProductModal()" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-plus"></i>
+                        <span>Add New Product</span>
+                    </button>
+                </div>
+                <div class="items-list" id="productsList">
+                    <!-- Products list will be dynamically loaded -->
+                </div>
+            </section>
+
+            <!-- Product Modal Popup -->
+            <div id="productModal" class="product-modal">
+                <div class="product-modal-overlay" onclick="closeProductModal()"></div>
+                <div class="product-modal-content">
+                    <div class="product-modal-header">
+                        <h2 id="productModalTitle">
+                            <span>Add New Product</span>
+                        </h2>
+                        <button type="button" class="product-modal-close" onclick="closeProductModal()" title="Close">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="product-modal-body">
+                        <form id="productForm" class="admin-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Product Name</label>
+                                    <input type="text" id="productName" class="input-field">
+                                </div>
+                                <div class="form-group">
+                                    <label>Price ($)</label>
+                                    <input type="number" id="productPrice" step="0.01" class="input-field">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Stock Quantity</label>
+                                    <input type="number" id="productStock" min="0" value="0" class="input-field">
+                                </div>
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <select id="productStatusSelect" class="input-field status-dropdown">
+                                        <option value="">Select Status</option>
+                                        <option value="Available" selected>Available</option>
+                                        <option value="Out of Stock">Out of Stock</option>
+                                        <option value="Coming Soon">Coming Soon</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Brand</label>
+                                    <select id="productBrand" class="input-field">
+                                        <option value="">Select Brand</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Flavours</label>
+                                    <div style="margin-bottom: 0.5rem;">
+                                        <div class="flavour-inputs-container" style="display: flex; gap: 0.5rem; align-items: flex-start; flex-wrap: wrap;">
+                                            <input type="text" id="flavourInput" placeholder="Or Enter custom flavor name" class="input-field" style="flex: 1; min-width: 200px;">
+                                            <select id="flavourSelectDropdown" class="input-field" style="flex: 1; min-width: 200px;">
+                                                <option value="">Select Existing Flavor</option>
+                                            </select>
+                                            <button type="button" class="btn btn-primary" id="addFlavourBtn" style="background: linear-gradient(135deg, #20B2AA, #008B8B); white-space: nowrap;">
+                                                <span style="font-size: 1.2rem; margin-right: 0.25rem;">+</span> Add Flavor
+                                            </button>
+                                        </div>
+                                        <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">Add one or more flavors with images. Each flavor can have its own image.</p>
+                                    </div>
+                                    <div id="selectedFlavoursList" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; min-height: 50px; padding: 1rem; background: #f8f9fa; border-radius: 8px; border: 2px dashed #ddd;">
+                                        <p style="color: #999; width: 100%; margin: 0; font-size: 0.9rem;" id="noFlavoursMessage">No flavors added yet. Add flavors above.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Product Image</label>
+                                <input type="file" id="productImage" accept="image/*" class="file-input">
+                                <div class="preview-container">
+                                    <img id="previewProduct" src="" alt="Preview" class="preview-img" style="display: none;">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea id="productDescription" class="textarea-field" rows="4"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="productFeatured" class="checkbox-input">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-text">Mark as Featured Product</span>
+                                </label>
+                                <small style="color: var(--text-color); font-size: 0.85rem; display: block; margin-top: 0.5rem;">
+                                    Featured products will appear in the featured section on the homepage (max 5 recommended)
+                                </small>
+                            </div>
+                            <div id="productStatusMessage" class="status-message"></div>
+                            <div class="product-modal-actions">
+                                <button type="button" class="btn btn-secondary" onclick="closeProductModal()">Cancel</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <span id="submitButtonText">Add Product</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Upload Section -->
+            <section id="database" class="content-section">
+                <h2>Import Database File</h2>
+                <div class="form-container">
+                    <div class="upload-info">
+                        <p><strong>Import database data from Excel file (.xlsx) to Firebase Firestore.</strong></p>
+                        <p>Supported file format: <code>.xlsx</code> (Excel 2007 and later)</p>
+                        <p>Supported collections: <code>products</code>, <code>brands</code>, <code>flavours</code></p>
+                        <div style="background: #e8f5e9; border: 2px solid #4CAF50; padding: 1rem; margin-top: 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+                            <div style="flex: 1;">
+                                <p style="margin: 0 0 0.5rem 0; font-weight: 600; color: #2e7d32; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-file-excel" style="font-size: 1.2rem;"></i> Need a Template?
+                                </p>
+                                <p style="margin: 0; color: #555; font-size: 0.9rem;">Download a ready-to-use Excel template with example data and proper structure.</p>
+                            </div>
+                            <a href="excel-template-generator.html" target="_blank" class="btn btn-primary" style="background: linear-gradient(135deg, #4CAF50, #45a049); white-space: nowrap; text-decoration: none; padding: 0.75rem 1.5rem;">
+                                <i class="fas fa-download"></i> Get Template
+                            </a>
+                        </div>
+                        <div style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 1rem; margin-top: 1rem; border-radius: 4px;">
+                            <p style="margin: 0 0 0.5rem 0; font-weight: 600; color: #1976D2;"><i class="fas fa-info-circle"></i> Excel File Structure:</p>
+                            <ul style="margin: 0; padding-left: 1.5rem; color: #555;">
+                                <li>Create separate sheets named: <strong>products</strong>, <strong>brands</strong>, and/or <strong>flavours</strong></li>
+                                <li>First row should contain column headers (field names)</li>
+                                <li>Each subsequent row represents one item</li>
+                                <li><strong>All fields are optional</strong> - Add only the data you want to include</li>
+                                <li><strong>Optional fields:</strong> <code>flavour_ids</code>, <code>stock</code>, <code>status</code>, <code>featured</code></li>
+                                <li><strong>Multiple flavors:</strong> Use comma-separated values: <code>Strawberry, Mango</code></li>
+                                <li><strong>Flavor IDs:</strong> Use <code>flavour_ids</code> column to specify custom IDs (same order as flavours): <code>FLAV-001, FLAV-002</code>. Leave empty to auto-generate.</li>
+                            </ul>
+                        </div>
+                        <p style="margin-top: 1rem; color: #f44336;"><strong>⚠️ Warning:</strong> Upload will add data to your database. Existing documents with the same ID will be skipped.</p>
+                    </div>
+                    
+                    <form id="databaseUploadForm">
+                        <div class="form-group">
+                            <label>Select Excel File (.xlsx)</label>
+                            <input type="file" id="databaseFile" accept=".xlsx,.xls" required class="file-input">
+                            <div id="selectedFileName" style="display: none; margin-top: 0.5rem; padding: 0.5rem; background: #f5f5f5; border-radius: 4px;">
+                                <strong>Selected:</strong> <span id="fileNameDisplay"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Import Options</label>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox" id="importProducts" checked>
+                                    <span>Import Products</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox" id="importBrands" checked>
+                                    <span>Import Brands</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox" id="importFlavours" checked>
+                                    <span>Import Flavours</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">📤 Upload & Import Excel File</button>
+                    </form>
+
+                    <div id="uploadProgress" style="display: none; margin-top: 1.5rem;">
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 1rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span id="progressText">Uploading...</span>
+                                <span id="progressPercent">0%</span>
+                            </div>
+                            <div style="background: #e0e0e0; border-radius: 4px; height: 24px; overflow: hidden;">
+                                <div id="progressBar" style="background: linear-gradient(90deg, #4CAF50, #45a049); height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+                            </div>
+                            <div id="progressDetails" style="margin-top: 1rem; font-size: 0.9rem; color: #666;"></div>
+                        </div>
+                    </div>
+
+                    <div id="uploadStatus" class="status-message" style="display: none; margin-top: 1rem;"></div>
+                </div>
+
+                <!-- Delete All Data Section -->
+                <div class="form-container" style="margin-top: 3rem; border-top: 3px solid #f44336; padding-top: 2rem;">
+                    <div class="upload-info" style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <h3 style="color: #856404; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-exclamation-triangle"></i> Danger Zone
+                        </h3>
+                        <p style="color: #856404; margin: 0;"><strong>⚠️ Warning:</strong> The actions below will permanently delete all data from Firebase Firestore. This action cannot be undone!</p>
+                        <p style="color: #856404; margin: 0.5rem 0 0 0;">All products, brands, and flavors will be completely removed along with their document IDs.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="color: var(--text-color); font-weight: 600; font-size: 1.1rem;">Delete All Data Options</label>
+                        <p style="color: var(--medium-gray); font-size: 0.9rem; margin: 0.5rem 0 1rem 0;">Select which collections you want to delete completely:</p>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                            <div style="border: 2px solid #e0e0e0; border-radius: 12px; padding: 1rem; background: #fff;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <div>
+                                        <strong style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <span>📦</span> Products
+                                        </strong>
+                                        <small style="color: #666; display: block; margin-top: 0.25rem;">Delete all products</small>
+                                    </div>
+                                    <button type="button" class="btn btn-danger" onclick="deleteAllProducts()" style="white-space: nowrap;">
+                                        <i class="fas fa-trash-alt"></i> Delete All
+                                    </button>
+                                </div>
+                                <div id="productsDeleteStatus" class="status-message" style="margin-top: 0.5rem; font-size: 0.85rem;"></div>
+                            </div>
+
+                            <div style="border: 2px solid #e0e0e0; border-radius: 12px; padding: 1rem; background: #fff;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <div>
+                                        <strong style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <span>🏷️</span> Brands
+                                        </strong>
+                                        <small style="color: #666; display: block; margin-top: 0.25rem;">Delete all brands</small>
+                                    </div>
+                                    <button type="button" class="btn btn-danger" onclick="deleteAllBrands()" style="white-space: nowrap;">
+                                        <i class="fas fa-trash-alt"></i> Delete All
+                                    </button>
+                                </div>
+                                <div id="brandsDeleteStatus" class="status-message" style="margin-top: 0.5rem; font-size: 0.85rem;"></div>
+                            </div>
+
+                            <div style="border: 2px solid #e0e0e0; border-radius: 12px; padding: 1rem; background: #fff;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <div>
+                                        <strong style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <span>🍬</span> Flavors
+                                        </strong>
+                                        <small style="color: #666; display: block; margin-top: 0.25rem;">Delete all flavors</small>
+                                    </div>
+                                    <button type="button" class="btn btn-danger" onclick="deleteAllFlavors()" style="white-space: nowrap;">
+                                        <i class="fas fa-trash-alt"></i> Delete All
+                                    </button>
+                                </div>
+                                <div id="flavorsDeleteStatus" class="status-message" style="margin-top: 0.5rem; font-size: 0.85rem;"></div>
+                            </div>
+                        </div>
+
+                        <div style="border: 3px solid #f44336; border-radius: 12px; padding: 1.5rem; background: linear-gradient(135deg, #ffebee, #fff); margin-top: 2rem;">
+                            <h3 style="color: #c62828; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-skull-crossbones"></i> Delete Everything
+                            </h3>
+                            <p style="color: #c62828; margin: 0 0 1rem 0; font-weight: 600;">This will delete ALL products, brands, and flavors at once!</p>
+                            <button type="button" class="btn btn-danger" onclick="deleteAllData()" style="width: 100%; padding: 1rem; font-size: 1.1rem; font-weight: 700;">
+                                <i class="fas fa-exclamation-triangle"></i> DELETE ALL DATA
+                            </button>
+                            <div id="deleteAllStatus" class="status-message" style="margin-top: 1rem;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <!-- SheetJS for Excel file reading -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="image-utils.js"></script>
+    <script>
+        // Authentication Check - Must be logged in to access admin panel
+        (function() {
+            const isAuthenticated = sessionStorage.getItem('adminAuthenticated') === 'true';
+            const loginTime = sessionStorage.getItem('adminLoginTime');
+            
+            // Check if authenticated and session is valid (24 hours)
+            if (!isAuthenticated || !loginTime) {
+                sessionStorage.removeItem('adminAuthenticated');
+                sessionStorage.removeItem('adminLoginTime');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Check session expiration (24 hours)
+            const now = Date.now();
+            const sessionDuration = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+            if (now - parseInt(loginTime) > sessionDuration) {
+                sessionStorage.removeItem('adminAuthenticated');
+                sessionStorage.removeItem('adminLoginTime');
+                alert('Your session has expired. Please login again.');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Logout function
+            window.adminLogout = function() {
+                sessionStorage.removeItem('adminAuthenticated');
+                sessionStorage.removeItem('adminLoginTime');
+                window.location.href = 'login.html';
+            };
+        })();
+
+        // Check if running from file:// and show warning
+        if (window.location.protocol === 'file:') {
+            document.getElementById('corsWarning').style.display = 'block';
+            console.error('⚠️ CORS WARNING: Page opened from file:// protocol. Firebase Storage will not work!');
+            console.log('Solutions:');
+            console.log('1. Use VS Code Live Server extension');
+            console.log('2. Run: python -m http.server 8000');
+            console.log('3. Run: npx http-server');
+        }
+        
+        function showServerInstructions() {
+            alert('How to Fix CORS Error:\n\n' +
+                  'Option 1: VS Code Live Server\n' +
+                  '- Install "Live Server" extension\n' +
+                  '- Right-click index.html → "Open with Live Server"\n\n' +
+                  'Option 2: Python Server\n' +
+                  '- Open terminal in project folder\n' +
+                  '- Run: python -m http.server 8000\n' +
+                  '- Open: http://localhost:8000/admin.html\n\n' +
+                  'Option 3: Node.js Server\n' +
+                  '- Run: npx http-server\n' +
+                  '- Open the URL shown\n\n' +
+                  'Option 4: Deploy to GitHub Pages\n' +
+                  '- Push to GitHub\n' +
+                  '- Enable GitHub Pages in repository settings');
+        }
+    </script>
+    <script src="admin.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Premium Vape Shop - Your Premium Vape Destination</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Admin Button -->
+    <div style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+        <a href="login.html" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #8B5CF6, #EC4899); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4); transition: all 0.3s ease;">
+            <i class="fas fa-cog"></i>
+            <span>Admin</span>
+        </a>
+    </div>
+
+    <!-- Brands Section -->
+    <section class="brands-section" id="brands">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-tag"></i> Our Brands
+                </h2>
+                <p class="section-subtitle">Explore our premium brand collection</p>
+            </div>
+            <div class="brands-filter-container">
+                <div class="brands-buttons-grid" id="brandsGrid">
+                    <div class="loading">Loading brands...</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Coming Soon Popup -->
+    <div id="comingSoonPopup" class="coming-soon-popup">
+        <div class="coming-soon-content">
+            <div class="coming-soon-icon">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <h2 class="coming-soon-title">Coming Soon</h2>
+            <p class="coming-soon-message">This feature is under development. Stay tuned!</p>
+            <button class="coming-soon-close" onclick="closeComingSoonPopup()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="firebase-config.js"></script>
+    <script src="image-utils.js"></script>
+    <script src="app.js"></script>
+    <script src="visitor-tracker.js"></script>
+    
+    <style>
+        /* Coming Soon Badge */
+        .coming-soon-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: linear-gradient(135deg, #F97316, #EA580C);
+            color: var(--white);
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
+            animation: pulse-badge 2s infinite;
+        }
+
+        @keyframes pulse-badge {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.9;
+            }
+        }
+
+        /* Coming Soon Popup */
+        .coming-soon-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .coming-soon-popup.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .coming-soon-content {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            position: relative;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .coming-soon-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: rotate 3s linear infinite;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .coming-soon-icon i {
+            font-size: 3rem;
+            color: var(--white);
+            animation: counterRotate 3s linear infinite;
+        }
+
+        @keyframes counterRotate {
+            from {
+                transform: rotate(360deg);
+            }
+            to {
+                transform: rotate(0deg);
+            }
+        }
+
+        .coming-soon-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--dark-purple);
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .coming-soon-message {
+            font-size: 1.1rem;
+            color: var(--medium-gray);
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+
+        .coming-soon-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--light-gray);
+            color: var(--text-color);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .coming-soon-close:hover {
+            background: var(--error-red);
+            color: var(--white);
+            transform: rotate(90deg);
+        }
+
+        @media (max-width: 768px) {
+            .coming-soon-content {
+                padding: 2.5rem 2rem;
+            }
+
+            .coming-soon-icon {
+                width: 80px;
+                height: 80px;
+            }
+
+            .coming-soon-icon i {
+                font-size: 2.5rem;
+            }
+
+            .coming-soon-title {
+                font-size: 1.75rem;
+            }
+
+            .coming-soon-message {
+                font-size: 1rem;
+            }
+        }
+    </style>
+
+    <script>
+        function showComingSoonPopup() {
+            const popup = document.getElementById('comingSoonPopup');
+            if (popup) {
+                popup.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeComingSoonPopup() {
+            const popup = document.getElementById('comingSoonPopup');
+            if (popup) {
+                popup.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close popup when clicking outside
+        document.addEventListener('click', function(event) {
+            const popup = document.getElementById('comingSoonPopup');
+            if (popup && event.target === popup) {
+                closeComingSoonPopup();
+            }
+        });
+
+        // Close popup with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeComingSoonPopup();
+            }
+        });
+    </script>
+</body>
+</html>

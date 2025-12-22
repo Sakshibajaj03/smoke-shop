@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Products - Premium Vape Shop</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Admin Button -->
+    <div style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+        <a href="login.html" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #8B5CF6, #EC4899); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4); transition: all 0.3s ease;">
+            <i class="fas fa-cog"></i>
+            <span>Admin</span>
+        </a>
+    </div>
+
+    <!-- Back Button -->
+    <div style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
+        <a href="index.html" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: #6B7280; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); transition: all 0.3s ease;">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Brands</span>
+        </a>
+    </div>
+
+    <!-- Products Section - Professional Layout -->
+    <section class="products-professional-section" id="products">
+        <div class="products-header">
+            <div class="header-content">
+                <h1 class="brand-title" id="brandTitle">
+                    <i class="fas fa-tag"></i>
+                    <span id="brandName">Loading...</span>
+                </h1>
+                <div class="products-count" id="productsCount">
+                    <span id="productCountNumber">0</span> Products
+                </div>
+            </div>
+        </div>
+        <div class="products-professional-container" id="allProductsGrid">
+            <div class="loading">Loading products...</div>
+        </div>
+    </section>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #F8FAFC;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .products-professional-section {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .products-header {
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .brand-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-title i {
+            font-size: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .products-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1.25rem;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .products-professional-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .products-column-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .product-card-professional {
+            background: #ffffff;
+            border: 2px solid #E2E8F0;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card-professional:hover {
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+            transform: translateY(-4px);
+            border-color: #8B5CF6;
+        }
+
+        .product-header-info {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 3px solid #E2E8F0;
+        }
+
+        .product-name-professional {
+            font-size: 1.75rem;
+            font-weight: 900;
+            color: #1E293B;
+            margin-bottom: 1rem;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
+        }
+
+        .product-id-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.65rem 1.25rem;
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            border: 2px solid #1E40AF;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-family: 'Courier New', monospace;
+            font-weight: 800;
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .product-id-badge i {
+            font-size: 0.85rem;
+            color: #FFFFFF;
+        }
+
+        .flavors-section-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #475569;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #E2E8F0;
+        }
+
+        .flavors-section-title i {
+            color: #8B5CF6;
+            font-size: 1.2rem;
+        }
+
+        .flavor-list-professional {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .flavor-item-professional {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+            border-radius: 12px;
+            border: 2px solid #E2E8F0;
+            transition: all 0.25s ease;
+        }
+
+        .flavor-item-professional:hover {
+            background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+            border-color: #8B5CF6;
+            transform: translateX(6px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+        }
+
+        .flavor-info-professional {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .flavor-id-professional {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            border: 2px solid #6D28D9;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-family: 'Courier New', monospace;
+            font-weight: 800;
+            color: #FFFFFF;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+            min-width: fit-content;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .flavor-id-professional i {
+            font-size: 0.8rem;
+            color: #FFFFFF;
+        }
+
+        .flavor-name-professional {
+            font-weight: 700;
+            color: #1E293B;
+            font-size: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .no-flavors-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 2rem;
+            color: #94A3B8;
+            font-style: italic;
+            background: #F8FAFC;
+            border-radius: 10px;
+            border: 2px dashed #CBD5E1;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem 2rem;
+            font-size: 1.1rem;
+            color: #64748B;
+            font-weight: 500;
+        }
+
+        /* Scrollbar styling */
+        .products-professional-container::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .products-professional-container::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+
+        .products-professional-container::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 5px;
+        }
+
+        .products-professional-container::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1400px) {
+            .products-column-layout {
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .products-column-layout {
+                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+                gap: 1.25rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .products-professional-container {
+                padding: 1.5rem 1rem;
+            }
+
+            .products-header {
+                padding: 1.25rem 1.5rem;
+            }
+
+            .brand-title {
+                font-size: 1.5rem;
+            }
+
+            .products-column-layout {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .product-card-professional {
+                padding: 1.5rem;
+            }
+
+            .product-name-professional {
+                font-size: 1.5rem;
+            }
+
+            .flavor-item-professional {
+                padding: 0.9rem 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .flavor-info-professional {
+                flex-wrap: wrap;
+                gap: 0.75rem;
+            }
+
+            .flavor-id-professional {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .product-id-badge {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <!-- Scripts -->
+    <script src="firebase-config.js"></script>
+    <script src="image-utils.js"></script>
+    <script>
+        // Get brand from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedBrand = urlParams.get('brand');
+
+        // Load and filter products by brand
+        let allProducts = [];
+        let filteredProducts = [];
+        let flavorsData = {};
+
+        function loadFlavorsData() {
+            return db.collection('flavours').get().then((snapshot) => {
+                flavorsData = {};
+                snapshot.forEach((doc) => {
+                    const flavor = doc.data();
+                    if (flavor.name) {
+                        flavorsData[flavor.name] = {
+                            id: flavor.flavorId || doc.id,
+                            name: flavor.name
+                        };
+                    }
+                });
+                return flavorsData;
+            }).catch((error) => {
+                console.error('Error loading flavors:', error);
+                return {};
+            });
+        }
+
+        function loadProducts() {
+            loadFlavorsData().then(() => {
+                db.collection('products').onSnapshot((snapshot) => {
+                    allProducts = [];
+                    
+                    if (snapshot.empty) {
+                        document.getElementById('allProductsGrid').innerHTML = '<div class="loading">No products available.</div>';
+                        return;
+                    }
+                    
+                    snapshot.forEach((doc) => {
+                        const product = { id: doc.id, ...doc.data() };
+                        allProducts.push(product);
+                    });
+                    
+                    // Filter by brand if specified
+                    if (selectedBrand) {
+                        filteredProducts = allProducts.filter(product => 
+                            product.brand && product.brand.toLowerCase() === selectedBrand.toLowerCase()
+                        );
+                    } else {
+                        filteredProducts = allProducts;
+                    }
+                    
+                    // Render products
+                    renderProducts();
+                }, (error) => {
+                    console.error('Error loading products:', error);
+                    document.getElementById('allProductsGrid').innerHTML = '<div class="loading">Error loading products</div>';
+                });
+            });
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('allProductsGrid');
+            const brandNameEl = document.getElementById('brandName');
+            const productCountEl = document.getElementById('productCountNumber');
+            
+            if (!container) return;
+            
+            // Update header
+            if (selectedBrand) {
+                brandNameEl.textContent = selectedBrand;
+            } else {
+                brandNameEl.textContent = 'All Products';
+            }
+            
+            // Update product count
+            productCountEl.textContent = filteredProducts.length;
+            
+            // Create column layout wrapper
+            container.innerHTML = '<div class="products-column-layout"></div>';
+            const columnLayout = container.querySelector('.products-column-layout');
+            
+            if (filteredProducts.length === 0) {
+                columnLayout.innerHTML = '<div class="loading">No products found for this brand.</div>';
+                return;
+            }
+            
+            filteredProducts.forEach((product) => {
+                const productItem = createProductItem(product);
+                columnLayout.appendChild(productItem);
+            });
+        }
+
+        function createProductItem(product) {
+            const card = document.createElement('div');
+            card.className = 'product-card-professional';
+            card.setAttribute('data-product-id', product.id);
+            
+            const flavours = Array.isArray(product.flavour) ? product.flavour : (product.flavour ? [product.flavour] : []);
+            const productId = product.productId || product.id || 'N/A';
+            
+            let flavorsHTML = '';
+            if (flavours.length > 0) {
+                flavorsHTML = flavours.map((flavor) => {
+                    const flavorInfo = flavorsData[flavor] || { id: 'N/A', name: flavor };
+                    const flavorIdDisplay = flavorInfo.id || 'N/A';
+                    
+                    return `
+                        <div class="flavor-item-professional">
+                            <div class="flavor-info-professional">
+                                <span class="flavor-id-professional">
+                                    <i class="fas fa-hashtag"></i>
+                                    <span>${flavorIdDisplay}</span>
+                                </span>
+                                <span class="flavor-name-professional">${flavor}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                flavorsHTML = '<div class="no-flavors-message">No flavors available for this product</div>';
+            }
+            
+            card.innerHTML = `
+                <div class="product-header-info">
+                    <div class="product-name-section">
+                        <h2 class="product-name-professional">${product.name || 'Unnamed Product'}</h2>
+                        <div class="product-id-badge">
+                            <i class="fas fa-barcode"></i>
+                            <span>Product ID: ${productId}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flavors-section">
+                    <div class="flavors-section-title">
+                        <i class="fas fa-palette"></i>
+                        <span>Available Flavors (${flavours.length})</span>
+                    </div>
+                    <div class="flavor-list-professional">
+                        ${flavorsHTML}
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+
+        // Initialize
+        loadProducts();
+    </script>
+</body>
+</html>
+
