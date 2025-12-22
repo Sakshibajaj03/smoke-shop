@@ -1128,8 +1128,65 @@ async function loadFlavoursList(snapshot) {
         return;
     }
     
-    flavoursList.innerHTML = '<div class="flavors-list-grid" id="flavoursGrid"></div>';
+    // Create filter toolbar and grid
+    flavoursList.innerHTML = `
+        <div class="products-toolbar">
+            <div class="toolbar-header">
+                <div class="toolbar-title">
+                    <i class="fas fa-filter"></i>
+                    <span>Filter by:</span>
+                </div>
+                <div class="toolbar-results" id="flavorResultsCount">
+                    <span id="visibleFlavorsCount">0</span> of <span id="totalFlavorsCount">0</span> flavors
+                </div>
+            </div>
+            <div class="toolbar-content">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="flavorSearch" placeholder="Search flavors by name, brand, or ID..." class="search-input">
+                </div>
+                <div class="filter-group-toolbar">
+                    <div class="filter-item">
+                        <label class="filter-label">
+                            <i class="fas fa-tag"></i>
+                            <span>Brand</span>
+                        </label>
+                        <select id="filterFlavorBrand" class="filter-select-toolbar">
+                            <option value="">All Brands</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">
+                            <i class="fas fa-sort"></i>
+                            <span>Sort by</span>
+                        </label>
+                        <select id="sortFlavors" class="filter-select-toolbar">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="name-asc">Name (A-Z)</option>
+                            <option value="name-desc">Name (Z-A)</option>
+                            <option value="brand-asc">Brand (A-Z)</option>
+                            <option value="brand-desc">Brand (Z-A)</option>
+                            <option value="id-asc">ID (A-Z)</option>
+                            <option value="id-desc">ID (Z-A)</option>
+                        </select>
+                    </div>
+                    <button class="btn-clear-filters" onclick="clearFlavorFilters()" title="Clear All Filters">
+                        <i class="fas fa-times"></i>
+                        <span>Clear</span>
+                    </button>
+                </div>
+            </div>
+            <div class="active-filters" id="activeFlavorFiltersContainer" style="display: none;">
+                <span class="active-filters-label">Active filters:</span>
+                <div class="active-filters-list" id="activeFlavorFiltersList"></div>
+            </div>
+        </div>
+        <div class="flavors-list-grid" id="flavoursGrid"></div>
+    `;
+    
     const flavoursGrid = document.getElementById('flavoursGrid');
+    const allFlavors = [];
     
     // Get all products to count usage
     const productsSnapshot = await db.collection('products').get();
@@ -1175,15 +1232,43 @@ async function loadFlavoursList(snapshot) {
             }
         });
         
+        allFlavors.push(flavour);
         const card = createFlavourCardAdmin(flavour, usageCount);
         flavoursGrid.appendChild(card);
     });
+    
+    // Store flavors for filtering
+    window.allFlavors = allFlavors;
+    
+    // Update total flavors count
+    updateFlavorCounts(allFlavors.length, allFlavors.length);
+    
+    // Populate brand filter
+    const brandFilter = document.getElementById('filterFlavorBrand');
+    if (brandFilter) {
+        const brands = [...new Set(allFlavors.map(f => f.brand).filter(Boolean))].sort();
+        brands.forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand;
+            option.textContent = brand;
+            brandFilter.appendChild(option);
+        });
+    }
+    
+    // Setup search and filter handlers
+    setupFlavorFilters();
+    
+    // Apply initial sort
+    sortFlavorsTable('newest');
 }
 
 // Create flavour card for admin - Brand-Specific
 function createFlavourCardAdmin(flavour, usageCount = 0) {
     const card = document.createElement('div');
     card.className = 'flavor-row-item';
+    card.dataset.flavorName = (flavour.name || '').toLowerCase();
+    card.dataset.flavorBrand = (flavour.brand || '').toLowerCase();
+    card.dataset.flavorId = (flavour.flavorId || flavour.id || '').toLowerCase();
     const flavorIdDisplay = flavour.flavorId || flavour.id || 'N/A';
     const brandName = flavour.brand || 'No Brand';
     card.innerHTML = `
@@ -2084,6 +2169,207 @@ function clearProductFilters() {
 }
 
 window.clearProductFilters = clearProductFilters;
+
+// Update flavor counts
+function updateFlavorCounts(visible, total) {
+    const visibleCount = document.getElementById('visibleFlavorsCount');
+    const totalCount = document.getElementById('totalFlavorsCount');
+    if (visibleCount) visibleCount.textContent = visible;
+    if (totalCount) totalCount.textContent = total;
+}
+
+// Sort flavors table
+function sortFlavorsTable(sortBy) {
+    const grid = document.getElementById('flavoursGrid');
+    if (!grid) return;
+    
+    const cards = Array.from(grid.querySelectorAll('.flavor-row-item'));
+    const allFlavors = window.allFlavors || [];
+    
+    // Create a map for quick lookup
+    const flavorMap = new Map();
+    allFlavors.forEach(flavor => {
+        flavorMap.set(flavor.id, flavor);
+    });
+    
+    cards.sort((a, b) => {
+        const flavorA = flavorMap.get(a.dataset.flavorId || '');
+        const flavorB = flavorMap.get(b.dataset.flavorId || '');
+        
+        if (!flavorA || !flavorB) return 0;
+        
+        switch(sortBy) {
+            case 'newest':
+                const timeA = flavorA.createdAt?.toMillis?.() || 0;
+                const timeB = flavorB.createdAt?.toMillis?.() || 0;
+                return timeB - timeA;
+            case 'oldest':
+                const timeAOld = flavorA.createdAt?.toMillis?.() || 0;
+                const timeBOld = flavorB.createdAt?.toMillis?.() || 0;
+                return timeAOld - timeBOld;
+            case 'name-asc':
+                return (flavorA.name || '').localeCompare(flavorB.name || '');
+            case 'name-desc':
+                return (flavorB.name || '').localeCompare(flavorA.name || '');
+            case 'brand-asc':
+                return (flavorA.brand || '').localeCompare(flavorB.brand || '');
+            case 'brand-desc':
+                return (flavorB.brand || '').localeCompare(flavorA.brand || '');
+            case 'id-asc':
+                return (flavorA.flavorId || '').localeCompare(flavorB.flavorId || '');
+            case 'id-desc':
+                return (flavorB.flavorId || '').localeCompare(flavorA.flavorId || '');
+            default:
+                return 0;
+        }
+    });
+    
+    // Re-append sorted cards
+    cards.forEach(card => grid.appendChild(card));
+    
+    // Update active filters
+    updateActiveFlavorFilters();
+}
+
+// Setup flavor filters
+function setupFlavorFilters() {
+    const searchInput = document.getElementById('flavorSearch');
+    const brandFilter = document.getElementById('filterFlavorBrand');
+    const sortSelect = document.getElementById('sortFlavors');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', filterFlavors);
+    }
+    if (brandFilter) {
+        brandFilter.addEventListener('change', filterFlavors);
+    }
+    if (sortSelect) {
+        sortSelect.addEventListener('change', (e) => {
+            sortFlavorsTable(e.target.value);
+            updateActiveFlavorFilters();
+        });
+    }
+}
+
+// Filter flavors
+function filterFlavors() {
+    const searchTerm = (document.getElementById('flavorSearch')?.value || '').toLowerCase();
+    const brandFilter = (document.getElementById('filterFlavorBrand')?.value || '').toLowerCase();
+    
+    const cards = document.querySelectorAll('.flavor-row-item');
+    let visibleCount = 0;
+    const totalCount = cards.length;
+    
+    cards.forEach(card => {
+        const name = card.dataset.flavorName || '';
+        const brand = card.dataset.flavorBrand || '';
+        const id = card.dataset.flavorId || '';
+        
+        const matchesSearch = !searchTerm || 
+            name.includes(searchTerm) || 
+            brand.includes(searchTerm) || 
+            id.includes(searchTerm);
+        const matchesBrand = !brandFilter || brand === brandFilter;
+        
+        if (matchesSearch && matchesBrand) {
+            card.style.display = '';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Update flavor counts
+    updateFlavorCounts(visibleCount, totalCount);
+    
+    // Update active filters display
+    updateActiveFlavorFilters();
+    
+    // Show message if no flavors match
+    const flavoursGrid = document.getElementById('flavoursGrid');
+    if (flavoursGrid) {
+        let noResultsMsg = flavoursGrid.querySelector('.no-results-message');
+        if (visibleCount === 0 && cards.length > 0) {
+            if (!noResultsMsg) {
+                noResultsMsg = document.createElement('div');
+                noResultsMsg.className = 'no-results-message';
+                noResultsMsg.style.cssText = 'grid-column: 1 / -1; text-align: center; padding: 2rem; color: #64748B;';
+                noResultsMsg.innerHTML = '<p><i class="fas fa-search"></i> No flavors match your filters. Try adjusting your search criteria.</p>';
+                flavoursGrid.appendChild(noResultsMsg);
+            }
+            noResultsMsg.style.display = '';
+        } else if (noResultsMsg) {
+            noResultsMsg.style.display = 'none';
+        }
+    }
+}
+
+// Update active flavor filters display
+function updateActiveFlavorFilters() {
+    const searchTerm = document.getElementById('flavorSearch')?.value || '';
+    const brandFilter = document.getElementById('filterFlavorBrand')?.value || '';
+    const sortSelect = document.getElementById('sortFlavors')?.value || '';
+    
+    const activeFiltersContainer = document.getElementById('activeFlavorFiltersContainer');
+    const activeFiltersList = document.getElementById('activeFlavorFiltersList');
+    
+    if (!activeFiltersContainer || !activeFiltersList) return;
+    
+    activeFiltersList.innerHTML = '';
+    const hasFilters = searchTerm || brandFilter || (sortSelect && sortSelect !== 'newest');
+    
+    if (hasFilters) {
+        if (searchTerm) {
+            const badge = document.createElement('span');
+            badge.className = 'active-filter-badge';
+            badge.innerHTML = `<i class="fas fa-search"></i> Search: "${searchTerm}" <button onclick="document.getElementById('flavorSearch').value=''; filterFlavors();" class="remove-filter-btn">×</button>`;
+            activeFiltersList.appendChild(badge);
+        }
+        
+        if (brandFilter) {
+            const badge = document.createElement('span');
+            badge.className = 'active-filter-badge';
+            badge.innerHTML = `<i class="fas fa-tag"></i> Brand: "${brandFilter}" <button onclick="document.getElementById('filterFlavorBrand').value=''; filterFlavors();" class="remove-filter-btn">×</button>`;
+            activeFiltersList.appendChild(badge);
+        }
+        
+        if (sortSelect && sortSelect !== 'newest') {
+            const sortLabels = {
+                'oldest': 'Oldest First',
+                'name-asc': 'Name (A-Z)',
+                'name-desc': 'Name (Z-A)',
+                'brand-asc': 'Brand (A-Z)',
+                'brand-desc': 'Brand (Z-A)',
+                'id-asc': 'ID (A-Z)',
+                'id-desc': 'ID (Z-A)'
+            };
+            const badge = document.createElement('span');
+            badge.className = 'active-filter-badge';
+            badge.innerHTML = `<i class="fas fa-sort"></i> Sort: "${sortLabels[sortSelect] || sortSelect}" <button onclick="document.getElementById('sortFlavors').value='newest'; sortFlavorsTable('newest');" class="remove-filter-btn">×</button>`;
+            activeFiltersList.appendChild(badge);
+        }
+        
+        activeFiltersContainer.style.display = '';
+    } else {
+        activeFiltersContainer.style.display = 'none';
+    }
+}
+
+// Clear flavor filters
+function clearFlavorFilters() {
+    const searchInput = document.getElementById('flavorSearch');
+    const brandFilter = document.getElementById('filterFlavorBrand');
+    const sortSelect = document.getElementById('sortFlavors');
+    
+    if (searchInput) searchInput.value = '';
+    if (brandFilter) brandFilter.value = '';
+    if (sortSelect) sortSelect.value = 'newest';
+    
+    filterFlavors();
+    sortFlavorsTable('newest');
+}
+
+window.clearFlavorFilters = clearFlavorFilters;
 
 // Delete brand
 async function deleteBrand(brandId) {
