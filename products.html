@@ -14,23 +14,23 @@
 </head>
 <body>
     <!-- Admin Button -->
-    <div style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
-        <a href="login.html" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #8B5CF6, #EC4899); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4); transition: all 0.3s ease;">
+    <div class="fixed-admin-btn">
+        <a href="login.html" class="admin-btn-link">
             <i class="fas fa-cog"></i>
-            <span>Admin</span>
+            <span class="admin-btn-text">Admin</span>
         </a>
     </div>
 
     <!-- Back Button -->
-    <div style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
-        <a href="index.html" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: #6B7280; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); transition: all 0.3s ease;">
+    <div class="fixed-back-btn">
+        <a href="index.html" class="back-btn-link">
             <i class="fas fa-arrow-left"></i>
-            <span>Back to Brands</span>
+            <span class="back-btn-text">Back to Brands</span>
         </a>
     </div>
 
-    <!-- Products Section - Professional Layout -->
-    <section class="products-professional-section" id="products">
+    <!-- Products Section - Master Detail Layout -->
+    <section class="products-master-detail-section" id="products">
         <div class="products-header">
             <div class="header-content">
                 <h1 class="brand-title" id="brandTitle">
@@ -42,8 +42,30 @@
                 </div>
             </div>
         </div>
-        <div class="products-professional-container" id="allProductsGrid">
-            <div class="loading">Loading products...</div>
+        <div class="master-detail-container">
+            <!-- Left Sidebar - Product List -->
+            <div class="products-sidebar" id="productsSidebar">
+                <div class="sidebar-header">
+                    <h2 class="sidebar-title">
+                        <i class="fas fa-list"></i>
+                        Products
+                    </h2>
+                </div>
+                <div class="products-list" id="productsList">
+                    <div class="loading">Loading products...</div>
+                </div>
+            </div>
+            
+            <!-- Right Side - Selected Product Flavors -->
+            <div class="flavors-display-area" id="flavorsDisplayArea">
+                <div class="no-selection-message">
+                    <div class="no-selection-icon">
+                        <i class="fas fa-hand-pointer"></i>
+                    </div>
+                    <h3>Select a Product</h3>
+                    <p>Choose a product from the left to view its flavors</p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -58,11 +80,56 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background: #F8FAFC;
+            background: #F5F7FA;
             font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .products-professional-section {
+        /* Fixed Buttons */
+        .fixed-admin-btn,
+        .fixed-back-btn {
+            position: fixed;
+            z-index: 1000;
+        }
+
+        .fixed-admin-btn {
+            top: 20px;
+            right: 20px;
+        }
+
+        .fixed-back-btn {
+            top: 20px;
+            left: 20px;
+        }
+
+        .admin-btn-link,
+        .back-btn-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn-link {
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
+        .back-btn-link {
+            background: #6B7280;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .admin-btn-text,
+        .back-btn-text {
+            display: inline;
+        }
+
+        .products-master-detail-section {
             width: 100vw;
             height: 100vh;
             display: flex;
@@ -71,21 +138,22 @@
         }
 
         .products-header {
-            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
-            color: white;
-            padding: 1.5rem 2rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background: #FFFFFF;
+            color: #1E293B;
+            padding: 1.5rem 2.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             z-index: 10;
+            border-bottom: 1px solid #E2E8F0;
         }
 
         .header-content {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 1.5rem;
         }
 
         .brand-title {
@@ -93,283 +161,619 @@
             font-weight: 800;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1rem;
             margin: 0;
             letter-spacing: -0.02em;
+            color: #1E293B;
         }
 
         .brand-title i {
             font-size: 1.5rem;
-            opacity: 0.9;
+            color: #475569;
         }
 
         .products-count {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 0.5rem 1.25rem;
-            border-radius: 20px;
+            background: #F1F5F9;
+            padding: 0.65rem 1.5rem;
+            border-radius: 8px;
             font-size: 0.95rem;
-            font-weight: 600;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-weight: 700;
+            border: 1px solid #E2E8F0;
+            color: #475569;
         }
 
-        .products-professional-container {
+        .master-detail-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            background: #F5F7FA;
+        }
+
+        /* Left Sidebar - Products List */
+        .products-sidebar {
+            width: 380px;
+            min-width: 320px;
+            background: #FFFFFF;
+            border-right: 1px solid #E2E8F0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .sidebar-header {
+            padding: 1.75rem 2rem;
+            background: #F8FAFC;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .sidebar-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #1E293B;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .sidebar-title i {
+            color: #475569;
+            font-size: 1.1rem;
+        }
+
+        .products-list {
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
-            padding: 2rem;
-            max-width: 1600px;
-            margin: 0 auto;
-            width: 100%;
+            padding: 0.5rem 0;
         }
 
-        .products-column-layout {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 2rem;
-            align-items: start;
+        .product-list-item {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #F1F5F9;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            background: #FFFFFF;
+            position: relative;
         }
 
-        .product-card-professional {
-            background: #ffffff;
-            border: 2px solid #E2E8F0;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
+        .product-list-item:hover {
+            background: #F8FAFC;
+        }
+
+        .product-list-item.active {
+            background: #F1F5F9;
+            border-left: 3px solid #475569;
+            padding-left: calc(2rem - 3px);
+        }
+
+        .product-list-item-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #1E293B;
+            letter-spacing: -0.01em;
+            line-height: 1.5;
+        }
+
+        .product-list-item.active .product-list-item-name {
+            color: #0F172A;
+            font-weight: 800;
+        }
+
+        /* Right Side - Flavors Display */
+        .flavors-display-area {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: #F5F7FA;
+            padding: 2.5rem;
+        }
+
+        .no-selection-message {
             display: flex;
             flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            color: #94A3B8;
+            padding: 3rem;
         }
 
-        .product-card-professional:hover {
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-            transform: translateY(-4px);
-            border-color: #8B5CF6;
-        }
-
-        .product-header-info {
+        .no-selection-icon {
+            font-size: 4rem;
             margin-bottom: 1.5rem;
-            padding-bottom: 1.25rem;
-            border-bottom: 3px solid #E2E8F0;
+            opacity: 0.3;
+            color: #CBD5E1;
         }
 
-        .product-name-professional {
-            font-size: 1.75rem;
-            font-weight: 900;
+        .no-selection-message h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #64748B;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.01em;
+        }
+
+        .no-selection-message p {
+            font-size: 1rem;
+            color: #94A3B8;
+            font-weight: 500;
+        }
+
+        .selected-product-header {
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 2rem 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #E2E8F0;
+        }
+
+        .selected-product-name {
+            font-size: 2rem;
+            font-weight: 800;
             color: #1E293B;
-            margin-bottom: 1rem;
-            letter-spacing: -0.03em;
+            margin-bottom: 0;
+            letter-spacing: -0.02em;
             line-height: 1.2;
         }
 
-        .product-id-badge {
+        .flavors-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .flavor-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            position: relative;
+        }
+
+        .flavor-id-display {
             display: inline-flex;
             align-items: center;
             gap: 0.6rem;
             padding: 0.65rem 1.25rem;
-            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-            border: 2px solid #1E40AF;
-            border-radius: 12px;
+            background: #3B82F6;
+            border: none;
+            border-radius: 8px;
             font-size: 0.9rem;
             font-family: 'Courier New', monospace;
-            font-weight: 800;
+            font-weight: 700;
             color: #FFFFFF;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            width: fit-content;
         }
 
-        .product-id-badge i {
+        .flavor-id-display i {
             font-size: 0.85rem;
             color: #FFFFFF;
         }
 
-        .flavors-section-title {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: #475569;
-            margin-bottom: 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid #E2E8F0;
-        }
-
-        .flavors-section-title i {
-            color: #8B5CF6;
-            font-size: 1.2rem;
-        }
-
-        .flavor-list-professional {
-            display: flex;
-            flex-direction: column;
-            gap: 0.85rem;
-        }
-
-        .flavor-item-professional {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.25rem;
-            background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
-            border-radius: 12px;
-            border: 2px solid #E2E8F0;
-            transition: all 0.25s ease;
-        }
-
-        .flavor-item-professional:hover {
-            background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
-            border-color: #8B5CF6;
-            transform: translateX(6px);
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
-        }
-
-        .flavor-info-professional {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .flavor-id-professional {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
-            border: 2px solid #6D28D9;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            font-family: 'Courier New', monospace;
-            font-weight: 800;
-            color: #FFFFFF;
-            white-space: nowrap;
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
-            min-width: fit-content;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .flavor-id-professional i {
-            font-size: 0.8rem;
-            color: #FFFFFF;
-        }
-
-        .flavor-name-professional {
+        .flavor-name-display {
+            font-size: 1.5rem;
             font-weight: 700;
             color: #1E293B;
-            font-size: 1rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            letter-spacing: -0.01em;
+            line-height: 1.4;
         }
 
         .no-flavors-message {
-            grid-column: 1 / -1;
             text-align: center;
-            padding: 2rem;
+            padding: 3rem;
             color: #94A3B8;
             font-style: italic;
-            background: #F8FAFC;
-            border-radius: 10px;
-            border: 2px dashed #CBD5E1;
+            background: #FFFFFF;
+            border-radius: 12px;
+            border: 1px dashed #CBD5E1;
         }
 
         .loading {
             text-align: center;
-            padding: 4rem 2rem;
-            font-size: 1.1rem;
+            padding: 2rem;
+            font-size: 1rem;
             color: #64748B;
             font-weight: 500;
         }
 
         /* Scrollbar styling */
-        .products-professional-container::-webkit-scrollbar {
-            width: 10px;
+        .products-list::-webkit-scrollbar,
+        .flavors-display-area::-webkit-scrollbar {
+            width: 8px;
         }
 
-        .products-professional-container::-webkit-scrollbar-track {
+        .products-list::-webkit-scrollbar-track,
+        .flavors-display-area::-webkit-scrollbar-track {
             background: #F1F5F9;
         }
 
-        .products-professional-container::-webkit-scrollbar-thumb {
+        .products-list::-webkit-scrollbar-thumb,
+        .flavors-display-area::-webkit-scrollbar-thumb {
             background: #CBD5E1;
-            border-radius: 5px;
+            border-radius: 4px;
         }
 
-        .products-professional-container::-webkit-scrollbar-thumb:hover {
+        .products-list::-webkit-scrollbar-thumb:hover,
+        .flavors-display-area::-webkit-scrollbar-thumb:hover {
             background: #94A3B8;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 1400px) {
-            .products-column-layout {
-                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-                gap: 1.5rem;
-            }
-        }
-
+        /* Tablet and Mobile Responsive Adjustments */
+        
+        /* Large Tablets (1024px and below) */
         @media (max-width: 1024px) {
-            .products-column-layout {
-                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            .flavors-grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
                 gap: 1.25rem;
             }
-        }
 
-        @media (max-width: 768px) {
-            .products-professional-container {
-                padding: 1.5rem 1rem;
+            .products-sidebar {
+                width: 320px;
+                min-width: 280px;
             }
 
+            .flavors-display-area {
+                padding: 2rem;
+            }
+
+            .selected-product-header {
+                padding: 2rem;
+            }
+
+            .selected-product-name {
+                font-size: 1.85rem;
+            }
+        }
+
+        /* Tablets (768px and below) */
+        @media (max-width: 768px) {
             .products-header {
                 padding: 1.25rem 1.5rem;
+            }
+
+            .header-content {
+                gap: 1rem;
             }
 
             .brand-title {
                 font-size: 1.5rem;
             }
 
-            .products-column-layout {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
+            .brand-title i {
+                font-size: 1.25rem;
             }
 
-            .product-card-professional {
+            .products-count {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .master-detail-container {
+                flex-direction: column;
+            }
+
+            .products-sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 300px;
+                border-right: none;
+                border-bottom: 1px solid #E2E8F0;
+            }
+
+            .sidebar-header {
+                padding: 1.5rem 1.5rem;
+            }
+
+            .sidebar-title {
+                font-size: 1.15rem;
+            }
+
+            .product-list-item {
+                padding: 1.25rem 1.5rem;
+            }
+
+            .product-list-item.active {
+                padding-left: calc(1.5rem - 3px);
+            }
+
+            .flavors-display-area {
                 padding: 1.5rem;
+                height: calc(100vh - 200px);
             }
 
-            .product-name-professional {
+            .flavors-grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+
+            .selected-product-header {
+                padding: 1.75rem 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .selected-product-name {
+                font-size: 1.75rem;
+            }
+
+            .flavor-card {
+                padding: 1.75rem;
+            }
+
+            .flavor-name-display {
+                font-size: 1.35rem;
+            }
+
+            .flavor-id-display {
+                padding: 0.6rem 1.1rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Small Tablets and Large Mobile (640px and below) */
+        @media (max-width: 640px) {
+            .products-header {
+                padding: 1rem 1.25rem;
+            }
+
+            .brand-title {
+                font-size: 1.35rem;
+            }
+
+            .products-count {
+                padding: 0.45rem 0.9rem;
+                font-size: 0.85rem;
+            }
+
+            .products-sidebar {
+                max-height: 280px;
+            }
+
+            .sidebar-header {
+                padding: 1.25rem 1.25rem;
+            }
+
+            .product-list-item {
+                padding: 1.1rem 1.25rem;
+            }
+
+            .product-list-item-name {
+                font-size: 1rem;
+            }
+
+            .flavors-display-area {
+                padding: 1.25rem;
+            }
+
+            .flavors-grid-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .selected-product-header {
+                padding: 1.5rem 1.25rem;
+                margin-bottom: 1.25rem;
+            }
+
+            .selected-product-name {
                 font-size: 1.5rem;
             }
 
-            .flavor-item-professional {
-                padding: 0.9rem 1rem;
+            .flavor-card {
+                padding: 1.5rem;
+            }
+
+            .flavor-name-display {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Mobile Devices (480px and below) */
+        @media (max-width: 480px) {
+            .products-header {
+                padding: 0.875rem 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .brand-title {
+                font-size: 1.25rem;
+            }
+
+            .products-count {
+                padding: 0.4rem 0.85rem;
+                font-size: 0.8rem;
+            }
+
+            .products-sidebar {
+                max-height: 250px;
+            }
+
+            .sidebar-header {
+                padding: 1rem;
+            }
+
+            .sidebar-title {
+                font-size: 1.05rem;
+            }
+
+            .product-list-item {
+                padding: 1rem;
+            }
+
+            .product-list-item-name {
+                font-size: 0.95rem;
+            }
+
+            .flavors-display-area {
+                padding: 1rem;
+            }
+
+            .selected-product-header {
+                padding: 1.25rem 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .selected-product-name {
+                font-size: 1.35rem;
+            }
+
+            .flavor-card {
+                padding: 1.25rem;
+                gap: 1rem;
+            }
+
+            .flavor-id-display {
+                padding: 0.55rem 1rem;
+                font-size: 0.8rem;
+            }
+
+            .flavor-name-display {
+                font-size: 1.15rem;
+            }
+
+            .no-selection-message {
+                padding: 2rem 1rem;
+            }
+
+            .no-selection-icon {
+                font-size: 3rem;
+                margin-bottom: 1rem;
+            }
+
+            .no-selection-message h3 {
+                font-size: 1.25rem;
+            }
+
+            .no-selection-message p {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Small Mobile Devices (360px and below) */
+        @media (max-width: 360px) {
+            .products-header {
+                padding: 0.75rem 0.875rem;
+            }
+
+            .brand-title {
+                font-size: 1.15rem;
+            }
+
+            .products-count {
+                padding: 0.35rem 0.75rem;
+                font-size: 0.75rem;
+            }
+
+            .sidebar-header {
+                padding: 0.875rem;
+            }
+
+            .product-list-item {
+                padding: 0.875rem;
+            }
+
+            .flavors-display-area {
+                padding: 0.875rem;
+            }
+
+            .selected-product-header {
+                padding: 1rem 0.875rem;
+            }
+
+            .selected-product-name {
+                font-size: 1.25rem;
+            }
+
+            .flavor-card {
+                padding: 1rem;
+            }
+
+            .flavor-name-display {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Landscape Mobile Orientation */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .products-sidebar {
+                max-height: 200px;
+            }
+
+            .flavors-display-area {
+                height: calc(100vh - 150px);
+            }
+        }
+
+        /* Responsive Fixed Buttons */
+        @media (max-width: 768px) {
+            .fixed-admin-btn {
+                top: 15px;
+                right: 15px;
+            }
+
+            .fixed-back-btn {
+                top: 15px;
+                left: 15px;
+            }
+
+            .admin-btn-link,
+            .back-btn-link {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .admin-btn-text,
+            .back-btn-text {
+                display: none;
+            }
+
+            .admin-btn-link i,
+            .back-btn-link i {
+                margin: 0;
             }
         }
 
         @media (max-width: 480px) {
-            .header-content {
-                flex-direction: column;
-                align-items: flex-start;
+            .fixed-admin-btn {
+                top: 10px;
+                right: 10px;
             }
 
-            .flavor-info-professional {
-                flex-wrap: wrap;
-                gap: 0.75rem;
+            .fixed-back-btn {
+                top: 10px;
+                left: 10px;
             }
 
-            .flavor-id-professional {
-                width: 100%;
-                justify-content: center;
+            .admin-btn-link,
+            .back-btn-link {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.85rem;
             }
+        }
 
-            .product-id-badge {
-                width: 100%;
-                justify-content: center;
+        /* Ensure header doesn't overlap with buttons on mobile */
+        @media (max-width: 768px) {
+            .products-header {
+                padding-top: 70px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .products-header {
+                padding-top: 60px;
             }
         }
     </style>
@@ -439,12 +843,14 @@
             });
         }
 
+        let selectedProductId = null;
+
         function renderProducts() {
-            const container = document.getElementById('allProductsGrid');
+            const productsList = document.getElementById('productsList');
             const brandNameEl = document.getElementById('brandName');
             const productCountEl = document.getElementById('productCountNumber');
             
-            if (!container) return;
+            if (!productsList) return;
             
             // Update header
             if (selectedBrand) {
@@ -456,28 +862,61 @@
             // Update product count
             productCountEl.textContent = filteredProducts.length;
             
-            // Create column layout wrapper
-            container.innerHTML = '<div class="products-column-layout"></div>';
-            const columnLayout = container.querySelector('.products-column-layout');
+            productsList.innerHTML = '';
             
             if (filteredProducts.length === 0) {
-                columnLayout.innerHTML = '<div class="loading">No products found for this brand.</div>';
+                productsList.innerHTML = '<div class="loading">No products found for this brand.</div>';
                 return;
             }
             
             filteredProducts.forEach((product) => {
-                const productItem = createProductItem(product);
-                columnLayout.appendChild(productItem);
+                const productItem = createProductListItem(product);
+                productsList.appendChild(productItem);
             });
         }
 
-        function createProductItem(product) {
-            const card = document.createElement('div');
-            card.className = 'product-card-professional';
-            card.setAttribute('data-product-id', product.id);
+        function createProductListItem(product) {
+            const item = document.createElement('div');
+            item.className = 'product-list-item';
+            item.setAttribute('data-product-id', product.id);
+            
+            item.innerHTML = `
+                <div class="product-list-item-name">${product.name || 'Unnamed Product'}</div>
+            `;
+            
+            item.addEventListener('click', () => {
+                selectProduct(product.id);
+            });
+            
+            return item;
+        }
+
+        function selectProduct(productId) {
+            selectedProductId = productId;
+            
+            // Update active state in sidebar
+            document.querySelectorAll('.product-list-item').forEach(item => {
+                if (item.dataset.productId === productId) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+            
+            // Display flavors
+            displayProductFlavors(productId);
+        }
+
+        function displayProductFlavors(productId) {
+            const flavorsArea = document.getElementById('flavorsDisplayArea');
+            const product = filteredProducts.find(p => p.id === productId);
+            
+            if (!product) {
+                flavorsArea.innerHTML = '<div class="no-selection-message"><h3>Product not found</h3></div>';
+                return;
+            }
             
             const flavours = Array.isArray(product.flavour) ? product.flavour : (product.flavour ? [product.flavour] : []);
-            const productId = product.productId || product.id || 'N/A';
             
             let flavorsHTML = '';
             if (flavours.length > 0) {
@@ -486,14 +925,12 @@
                     const flavorIdDisplay = flavorInfo.id || 'N/A';
                     
                     return `
-                        <div class="flavor-item-professional">
-                            <div class="flavor-info-professional">
-                                <span class="flavor-id-professional">
-                                    <i class="fas fa-hashtag"></i>
-                                    <span>${flavorIdDisplay}</span>
-                                </span>
-                                <span class="flavor-name-professional">${flavor}</span>
+                        <div class="flavor-card">
+                            <div class="flavor-id-display">
+                                <i class="fas fa-hashtag"></i>
+                                <span>${flavorIdDisplay}</span>
                             </div>
+                            <div class="flavor-name-display">${flavor}</div>
                         </div>
                     `;
                 }).join('');
@@ -501,28 +938,14 @@
                 flavorsHTML = '<div class="no-flavors-message">No flavors available for this product</div>';
             }
             
-            card.innerHTML = `
-                <div class="product-header-info">
-                    <div class="product-name-section">
-                        <h2 class="product-name-professional">${product.name || 'Unnamed Product'}</h2>
-                        <div class="product-id-badge">
-                            <i class="fas fa-barcode"></i>
-                            <span>Product ID: ${productId}</span>
-                        </div>
-                    </div>
+            flavorsArea.innerHTML = `
+                <div class="selected-product-header">
+                    <h2 class="selected-product-name">${product.name || 'Unnamed Product'}</h2>
                 </div>
-                <div class="flavors-section">
-                    <div class="flavors-section-title">
-                        <i class="fas fa-palette"></i>
-                        <span>Available Flavors (${flavours.length})</span>
-                    </div>
-                    <div class="flavor-list-professional">
-                        ${flavorsHTML}
-                    </div>
+                <div class="flavors-grid-container">
+                    ${flavorsHTML}
                 </div>
             `;
-            
-            return card;
         }
 
 
