@@ -29,7 +29,7 @@
         </a>
     </div>
 
-    <!-- Products Section - Master Detail Layout -->
+    <!-- Products Section - New Layout -->
     <section class="products-master-detail-section" id="products">
         <div class="products-header">
             <div class="header-content">
@@ -42,28 +42,34 @@
                 </div>
             </div>
         </div>
-        <div class="master-detail-container">
-            <!-- Left Sidebar - Product List -->
-            <div class="products-sidebar" id="productsSidebar">
-                <div class="sidebar-header">
-                    <h2 class="sidebar-title">
-                        <i class="fas fa-list"></i>
-                        Products
-                    </h2>
-                </div>
-                <div class="products-list" id="productsList">
+        
+        <!-- Horizontal Products List Section -->
+        <div class="products-horizontal-section">
+            <div class="products-horizontal-header">
+                <h2 class="horizontal-section-title">
+                    <i class="fas fa-list"></i>
+                    Products
+                </h2>
+            </div>
+            <div class="products-horizontal-container">
+                <div class="products-horizontal-scroll" id="productsList">
                     <div class="loading">Loading products...</div>
                 </div>
             </div>
-            
-            <!-- Right Side - Selected Product Flavors -->
+        </div>
+        
+        <!-- Flavors Display Section -->
+        <div class="flavors-section">
+            <div class="flavors-section-header" id="flavorsSectionHeader" style="display: none;">
+                <h2 class="flavors-section-title" id="selectedProductName">Select a Product</h2>
+            </div>
             <div class="flavors-display-area" id="flavorsDisplayArea">
                 <div class="no-selection-message">
                     <div class="no-selection-icon">
                         <i class="fas fa-hand-pointer"></i>
                     </div>
                     <h3>Select a Product</h3>
-                    <p>Choose a product from the left to view its flavors</p>
+                    <p>Choose a product from above to view its flavors</p>
                 </div>
             </div>
         </div>
@@ -226,33 +232,21 @@
             color: #475569;
         }
 
-        .master-detail-container {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-            background: #F5F7FA;
-            min-height: 0;
-        }
-
-        /* Left Sidebar - Products List */
-        .products-sidebar {
-            width: 380px;
-            min-width: 320px;
+        /* Horizontal Products Section */
+        .products-horizontal-section {
+            flex-shrink: 0;
             background: #FFFFFF;
-            border-right: 1px solid #E2E8F0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+            border-bottom: 1px solid #E2E8F0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
-        .sidebar-header {
-            padding: 1.75rem 2rem;
+        .products-horizontal-header {
+            padding: 1.25rem 2.5rem;
             background: #F8FAFC;
             border-bottom: 1px solid #E2E8F0;
         }
 
-        .sidebar-title {
+        .horizontal-section-title {
             font-size: 1.25rem;
             font-weight: 800;
             color: #1E293B;
@@ -263,35 +257,71 @@
             letter-spacing: -0.01em;
         }
 
-        .sidebar-title i {
+        .horizontal-section-title i {
             color: #475569;
             font-size: 1.1rem;
         }
 
-        .products-list {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 0.5rem 0;
+        .products-horizontal-container {
+            padding: 1.5rem 2.5rem;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: #CBD5E1 #F1F5F9;
+        }
+
+        .products-horizontal-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .products-horizontal-container::-webkit-scrollbar-track {
+            background: #F1F5F9;
+            border-radius: 4px;
+        }
+
+        .products-horizontal-container::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+
+        .products-horizontal-container::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        .products-horizontal-scroll {
+            display: flex;
+            gap: 1.25rem;
+            min-width: fit-content;
+            padding-bottom: 0.5rem;
         }
 
         .product-list-item {
-            padding: 1.5rem 2rem;
-            border-bottom: 1px solid #F1F5F9;
+            min-width: 220px;
+            max-width: 280px;
+            padding: 1.5rem;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
             cursor: pointer;
-            transition: background-color 0.2s ease;
+            transition: all 0.3s ease;
             background: #FFFFFF;
             position: relative;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .product-list-item:hover {
             background: #F8FAFC;
+            border-color: #3B82F6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
         }
 
         .product-list-item.active {
-            background: #F1F5F9;
-            border-left: 3px solid #475569;
-            padding-left: calc(2rem - 3px);
+            background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+            border-color: #3B82F6;
+            border-width: 2px;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
         }
 
         .product-list-item-name {
@@ -300,6 +330,9 @@
             color: #1E293B;
             letter-spacing: -0.01em;
             line-height: 1.5;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            text-align: center;
         }
 
         .product-list-item.active .product-list-item-name {
@@ -307,13 +340,48 @@
             font-weight: 800;
         }
 
-        /* Right Side - Flavors Display */
+        /* Flavors Section */
+        .flavors-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #F5F7FA;
+            min-height: 0;
+        }
+
+        .flavors-section-header {
+            flex-shrink: 0;
+            background: #FFFFFF;
+            padding: 1.5rem 2.5rem;
+            border-bottom: 1px solid #E2E8F0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .flavors-section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1E293B;
+            margin: 0;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .flavors-section-title i {
+            color: #3B82F6;
+            font-size: 1.3rem;
+        }
+
+        /* Flavors Display Area */
         .flavors-display-area {
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
             background: #F5F7FA;
-            padding: 2.5rem;
+            padding: 2rem 2.5rem;
+            min-height: 0;
         }
 
         .no-selection-message {
@@ -348,23 +416,6 @@
             font-weight: 500;
         }
 
-        .selected-product-header {
-            background: #FFFFFF;
-            border-radius: 12px;
-            padding: 2rem 2.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            border: 1px solid #E2E8F0;
-        }
-
-        .selected-product-name {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #1E293B;
-            margin-bottom: 0;
-            letter-spacing: -0.02em;
-            line-height: 1.2;
-        }
 
         .flavors-grid-container {
             display: grid;
@@ -438,23 +489,19 @@
         }
 
         /* Scrollbar styling */
-        .products-list::-webkit-scrollbar,
         .flavors-display-area::-webkit-scrollbar {
             width: 8px;
         }
 
-        .products-list::-webkit-scrollbar-track,
         .flavors-display-area::-webkit-scrollbar-track {
             background: #F1F5F9;
         }
 
-        .products-list::-webkit-scrollbar-thumb,
         .flavors-display-area::-webkit-scrollbar-thumb {
             background: #CBD5E1;
             border-radius: 4px;
         }
 
-        .products-list::-webkit-scrollbar-thumb:hover,
         .flavors-display-area::-webkit-scrollbar-thumb:hover {
             background: #94A3B8;
         }
@@ -463,44 +510,40 @@
         
         /* Large Tablets and iPad (1024px and below) */
         @media (max-width: 1024px) {
-            .flavors-grid-container {
-                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-                gap: 1.25rem;
-                width: 100%;
-                max-width: 100%;
-                padding: 0;
+            .products-header {
+                padding-left: calc(2.5rem + 180px);
+                padding-right: calc(2.5rem + 150px);
             }
 
-            .products-sidebar {
-                width: 320px;
-                min-width: 280px;
+            .products-horizontal-header {
+                padding: 1rem 2rem;
+            }
+
+            .products-horizontal-container {
+                padding: 1.25rem 2rem;
+            }
+
+            .product-list-item {
+                min-width: 200px;
+                max-width: 240px;
+                padding: 1.25rem;
+            }
+
+            .flavors-section-header {
+                padding: 1.25rem 2rem;
             }
 
             .flavors-display-area {
-                padding: 2rem;
-                width: 100%;
-                max-width: 100%;
-                box-sizing: border-box;
+                padding: 1.75rem 2rem;
             }
 
-            .selected-product-header {
-                padding: 2rem;
-                width: 100%;
-                max-width: 100%;
-                box-sizing: border-box;
-            }
-
-            .selected-product-name {
-                font-size: 1.85rem;
-                word-wrap: break-word;
-                overflow-wrap: break-word;
+            .flavors-grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1.25rem;
             }
 
             .flavor-card {
-                width: 100%;
-                max-width: 100%;
-                min-width: 0;
-                box-sizing: border-box;
+                padding: 1.75rem;
             }
         }
 
@@ -517,10 +560,12 @@
                 width: 100%;
                 max-width: 100%;
                 min-width: 0;
+                box-sizing: border-box;
             }
 
-            .flavors-display-area {
-                padding: 1.75rem;
+            .product-list-item {
+                min-width: 180px;
+                max-width: 220px;
             }
         }
 
@@ -597,58 +642,37 @@
                 font-size: 0.9rem;
             }
 
-            .master-detail-container {
-                flex-direction: column;
-                height: calc(100vh - 140px);
-                min-height: 0;
-                width: 100%;
-                max-width: 100%;
+            .products-horizontal-header {
+                padding: 1rem 1.25rem;
             }
 
-            .products-sidebar {
-                width: 100%;
-                max-width: 100%;
-                height: auto;
-                max-height: 35vh;
-                min-height: 200px;
-                border-right: none;
-                border-bottom: 1px solid #E2E8F0;
-                flex-shrink: 0;
-            }
-
-            .flavors-display-area {
-                width: 100%;
-                max-width: 100%;
-            }
-
-            .sidebar-header {
-                padding: 1.25rem 1.5rem;
-            }
-
-            .sidebar-title {
-                font-size: 1.15rem;
+            .products-horizontal-container {
+                padding: 1rem 1.25rem;
             }
 
             .product-list-item {
-                padding: 1.1rem 1.5rem;
+                min-width: 180px;
+                max-width: 200px;
+                padding: 1.25rem 1rem;
             }
 
-            .product-list-item.active {
-                padding-left: calc(1.5rem - 3px);
+            .flavors-section-header {
+                padding: 1.25rem 1.5rem;
+            }
+
+            .flavors-section-title {
+                font-size: 1.35rem;
             }
 
             .flavors-display-area {
                 padding: 1.5rem;
-                flex: 1;
-                min-height: 0;
-                overflow-y: auto;
                 width: 100%;
                 max-width: 100%;
                 box-sizing: border-box;
             }
 
             .flavors-grid-container {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
                 gap: 1rem;
                 width: 100%;
                 max-width: 100%;
@@ -660,18 +684,6 @@
                 max-width: 100%;
                 min-width: 0;
                 box-sizing: border-box;
-            }
-
-            .selected-product-header {
-                padding: 1.5rem 1.25rem;
-                margin-bottom: 1.25rem;
-            }
-
-            .selected-product-name {
-                font-size: 1.65rem;
-            }
-
-            .flavor-card {
                 padding: 1.5rem;
             }
 
@@ -708,25 +720,30 @@
                 font-size: 0.85rem;
             }
 
-            .master-detail-container {
-                height: calc(100vh - 130px);
+            .products-horizontal-header {
+                padding: 0.875rem 1rem;
             }
 
-            .products-sidebar {
-                max-height: 30vh;
-                min-height: 180px;
-            }
-
-            .sidebar-header {
-                padding: 1.1rem 1.25rem;
+            .products-horizontal-container {
+                padding: 0.875rem 1rem;
             }
 
             .product-list-item {
-                padding: 1rem 1.25rem;
+                min-width: 160px;
+                max-width: 180px;
+                padding: 1rem;
             }
 
             .product-list-item-name {
-                font-size: 1rem;
+                font-size: 0.95rem;
+            }
+
+            .flavors-section-header {
+                padding: 1rem 1.25rem;
+            }
+
+            .flavors-section-title {
+                font-size: 1.25rem;
             }
 
             .flavors-display-area {
@@ -749,18 +766,6 @@
                 max-width: 100%;
                 min-width: 0;
                 box-sizing: border-box;
-            }
-
-            .selected-product-header {
-                padding: 1.25rem 1rem;
-                margin-bottom: 1rem;
-            }
-
-            .selected-product-name {
-                font-size: 1.5rem;
-            }
-
-            .flavor-card {
                 padding: 1.5rem;
             }
 
@@ -820,21 +825,6 @@
                 max-width: 100%;
             }
 
-            .master-detail-container {
-                width: 100%;
-                max-width: 100%;
-            }
-
-            .products-sidebar {
-                width: 100%;
-                max-width: 100%;
-            }
-
-            .flavors-display-area {
-                width: 100%;
-                max-width: 100%;
-            }
-
             .brand-title {
                 font-size: 1.2rem;
                 width: 100%;
@@ -845,38 +835,30 @@
                 font-size: 0.8rem;
             }
 
-            .master-detail-container {
-                height: calc(100vh - 120px);
-                width: 100%;
-                max-width: 100%;
+            .products-horizontal-header {
+                padding: 0.75rem 1rem;
             }
 
-            .products-sidebar {
-                max-height: 28vh;
-                min-height: 160px;
-                width: 100%;
-                max-width: 100%;
-            }
-
-            .flavors-display-area {
-                width: 100%;
-                max-width: 100%;
-            }
-
-            .sidebar-header {
-                padding: 0.875rem 1rem;
-            }
-
-            .sidebar-title {
-                font-size: 1.05rem;
+            .products-horizontal-container {
+                padding: 0.75rem 1rem;
             }
 
             .product-list-item {
-                padding: 0.875rem 1rem;
+                min-width: 150px;
+                max-width: 170px;
+                padding: 1rem 0.875rem;
             }
 
             .product-list-item-name {
-                font-size: 0.95rem;
+                font-size: 0.9rem;
+            }
+
+            .flavors-section-header {
+                padding: 1rem;
+            }
+
+            .flavors-section-title {
+                font-size: 1.2rem;
             }
 
             .flavors-display-area {
@@ -887,26 +869,19 @@
             }
 
             .flavors-grid-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
                 width: 100%;
                 max-width: 100%;
                 padding: 0;
             }
 
-            .selected-product-header {
-                padding: 1.25rem 1rem;
-                margin-bottom: 1rem;
-                width: 100%;
-                max-width: 100%;
-                box-sizing: border-box;
-            }
-
-            .selected-product-name {
-                font-size: 1.35rem;
-            }
-
             .flavor-card {
                 padding: 1.25rem;
                 gap: 1rem;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
             }
 
             .flavor-id-display {
@@ -972,21 +947,26 @@
                 font-size: 0.75rem;
             }
 
-            .master-detail-container {
-                height: calc(100vh - 110px);
+            .products-horizontal-header {
+                padding: 0.75rem 0.875rem;
             }
 
-            .products-sidebar {
-                max-height: 25vh;
-                min-height: 140px;
-            }
-
-            .sidebar-header {
+            .products-horizontal-container {
                 padding: 0.75rem 0.875rem;
             }
 
             .product-list-item {
-                padding: 0.75rem 0.875rem;
+                min-width: 140px;
+                max-width: 160px;
+                padding: 0.875rem;
+            }
+
+            .flavors-section-header {
+                padding: 0.875rem;
+            }
+
+            .flavors-section-title {
+                font-size: 1.1rem;
             }
 
             .flavors-display-area {
@@ -997,24 +977,18 @@
             }
 
             .flavors-grid-container {
+                grid-template-columns: 1fr;
+                gap: 0.875rem;
                 width: 100%;
                 max-width: 100%;
                 padding: 0;
             }
 
-            .selected-product-header {
-                padding: 1rem 0.875rem;
+            .flavor-card {
+                padding: 1rem;
                 width: 100%;
                 max-width: 100%;
                 box-sizing: border-box;
-            }
-
-            .selected-product-name {
-                font-size: 1.2rem;
-            }
-
-            .flavor-card {
-                padding: 1rem;
             }
 
             .flavor-name-display {
@@ -1046,17 +1020,22 @@
                 max-width: 100%;
             }
 
-            .master-detail-container {
-                height: calc(100vh - 120px);
-                width: 100%;
-                max-width: 100%;
+            .products-horizontal-section {
+                flex-shrink: 0;
             }
 
-            .products-sidebar {
-                max-height: 40vh;
-                min-height: 180px;
-                width: 100%;
-                max-width: 100%;
+            .products-horizontal-container {
+                padding: 1rem;
+            }
+
+            .product-list-item {
+                min-width: 160px;
+                max-width: 180px;
+            }
+
+            .flavors-section {
+                flex: 1;
+                min-height: 0;
             }
 
             .flavors-display-area {
@@ -1068,6 +1047,8 @@
             }
 
             .flavors-grid-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
                 width: 100%;
                 max-width: 100%;
                 padding: 0;
@@ -1300,7 +1281,7 @@
         function selectProduct(productId) {
             selectedProductId = productId;
             
-            // Update active state in sidebar
+            // Update active state in horizontal product list
             document.querySelectorAll('.product-list-item').forEach(item => {
                 if (item.dataset.productId === productId) {
                     item.classList.add('active');
@@ -1315,14 +1296,21 @@
 
         function displayProductFlavors(productId) {
             const flavorsArea = document.getElementById('flavorsDisplayArea');
+            const flavorsHeader = document.getElementById('flavorsSectionHeader');
+            const selectedProductNameEl = document.getElementById('selectedProductName');
             const product = filteredProducts.find(p => p.id === productId);
             
             if (!product) {
+                flavorsHeader.style.display = 'none';
                 flavorsArea.innerHTML = '<div class="no-selection-message"><h3>Product not found</h3></div>';
                 return;
             }
             
             const flavours = Array.isArray(product.flavour) ? product.flavour : (product.flavour ? [product.flavour] : []);
+            
+            // Show the flavors section header
+            flavorsHeader.style.display = 'block';
+            selectedProductNameEl.innerHTML = `<i class="fas fa-cube"></i> ${product.name || 'Unnamed Product'}`;
             
             let flavorsHTML = '';
             if (flavours.length > 0) {
@@ -1345,9 +1333,6 @@
             }
             
             flavorsArea.innerHTML = `
-                <div class="selected-product-header">
-                    <h2 class="selected-product-name">${product.name || 'Unnamed Product'}</h2>
-                </div>
                 <div class="flavors-grid-container">
                     ${flavorsHTML}
                 </div>
