@@ -14,10 +14,10 @@
 </head>
 <body>
     <!-- Admin Button -->
-    <div style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
-        <a href="login.html" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #8B5CF6, #EC4899); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4); transition: all 0.3s ease;">
+    <div class="admin-button-container">
+        <a href="login.html" class="admin-button-link">
             <i class="fas fa-cog"></i>
-            <span>Admin</span>
+            <span class="admin-button-text">Admin</span>
         </a>
     </div>
 
@@ -219,7 +219,47 @@
             transform: rotate(90deg);
         }
 
+        /* Admin Button Styles */
+        .admin-button-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .admin-button-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .admin-button-text {
+            display: inline;
+        }
+
         @media (max-width: 768px) {
+            .admin-button-container {
+                top: 10px;
+                right: 10px;
+            }
+
+            .admin-button-link {
+                padding: 0.6rem 0.9rem;
+                font-size: 0.9rem;
+            }
+
+            .admin-button-text {
+                display: none;
+            }
+
             .coming-soon-content {
                 padding: 2.5rem 2rem;
             }
@@ -239,6 +279,18 @@
 
             .coming-soon-message {
                 font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .admin-button-container {
+                top: 8px;
+                right: 8px;
+            }
+
+            .admin-button-link {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.85rem;
             }
         }
     </style>

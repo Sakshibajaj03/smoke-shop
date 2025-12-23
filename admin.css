@@ -3554,7 +3554,7 @@ body {
 }
 }
 
-/* Brand Card Admin - New Design */
+/* Brand Card Admin - New Design - Attractive Static Colors */
 .brands-grid-admin {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -3562,16 +3562,16 @@ body {
 }
 
 .brand-card-admin {
-    background: var(--white);
-    border-radius: 16px;
+    background: #FFFFFF;
+    border-radius: 12px;
     padding: 2rem;
-    box-shadow: var(--shadow-card);
-    border: 1px solid var(--border-color);
-    transition: var(--transition);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    border: 2px solid #E0E7FF;
+    /* No transitions or animations */
 }
 
 .brand-card-admin:hover {
-    box-shadow: var(--shadow-hover);
+    /* No hover effects - static design */
 }
 
 .brand-card-header {
@@ -3580,7 +3580,7 @@ body {
     align-items: center;
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 2px solid #E0E7FF;
 }
 
 .brand-icon-header {
@@ -3594,20 +3594,22 @@ body {
     height: 48px;
     min-width: 48px;
     border-radius: 50%;
-    background: var(--gradient-primary);
-    color: var(--white);
+    background: #2563EB;
+    color: #FFFFFF;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
     font-weight: 700;
-    box-shadow: var(--shadow);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    border: 2px solid #1D4ED8;
+    /* No animations */
 }
 
 .brand-card-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--dark-color);
+    color: #1E293B;
     margin: 0;
 }
 
@@ -3627,50 +3629,50 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    transition: var(--transition);
+    /* No transitions */
     font-size: 0.9rem;
     font-weight: 600;
-    border: 2px solid transparent;
+    border: 2px solid;
     white-space: nowrap;
 }
 
 .btn-icon-edit {
-    background: var(--gradient-primary);
-    color: var(--white);
-    border-color: transparent;
-    box-shadow: var(--shadow);
+    background: #2563EB;
+    color: #FFFFFF;
+    border-color: #1D4ED8;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
 }
 
 .btn-icon-edit:hover {
-    background: var(--gradient-secondary);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-hover);
+    background: #1D4ED8;
+    /* No transform */
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
 }
 
 .btn-icon-edit i {
-    color: var(--white);
+    color: #FFFFFF;
     font-size: 1.1rem;
     display: flex;
     align-items: center;
 }
 
 .btn-icon-edit .btn-label {
-    color: var(--white);
+    color: #FFFFFF;
     font-size: 0.9rem;
     font-weight: 600;
 }
 
 .btn-icon-delete {
-    background: var(--white);
+    background: #FFFFFF;
     border: 2px solid #EF4444;
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3), 0 2px 6px rgba(239, 68, 68, 0.15), inset 0 0 15px rgba(239, 68, 68, 0.05);
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
 }
 
 .btn-icon-delete:hover {
     background: #FEF2F2;
-    border-color: #DC2626;
-    transform: translateY(-2px);
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15), 0 4px 12px rgba(239, 68, 68, 0.25);
+    border-color: #EF4444;
+    /* No transform */
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
 }
 
 .btn-icon-delete i {
@@ -3702,16 +3704,19 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    /* No animations */
 }
 
 .product-badge {
-    background: linear-gradient(135deg, #0EA5E9, #38BDF8);
-    color: var(--white);
+    background: #3B82F6;
+    color: #FFFFFF;
+    border: 1px solid #2563EB;
 }
 
 .flavor-badge {
-    background: var(--gradient-success);
-    color: var(--white);
+    background: #10B981;
+    color: #FFFFFF;
+    border: 1px solid #059669;
 }
 
 .display-order-group {
@@ -3724,7 +3729,7 @@ body {
 .display-order-label {
     font-size: 0.9rem;
     font-weight: 600;
-    color: var(--text-color);
+    color: #475569;
 }
 
 .display-order-input {
@@ -3736,8 +3741,8 @@ body {
     font-weight: 600;
     text-align: center;
     background: #FEF3C7;
-    color: var(--dark-color);
-    transition: var(--transition);
+    color: #92400E;
+    /* No transitions */
 }
 
 .display-order-input:focus {
@@ -3760,14 +3765,14 @@ body {
 .assigned-flavors-header h4 {
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--dark-color);
+    color: #1E293B;
     margin: 0;
 }
 
 .btn-assign-flavor {
-    background: var(--gradient-primary);
-    color: var(--white);
-    border: none;
+    background: #8B5CF6;
+    color: #FFFFFF;
+    border: 2px solid #7C3AED;
     padding: 0.5rem 1rem;
     border-radius: 8px;
     font-size: 0.9rem;
@@ -3776,20 +3781,20 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    transition: var(--transition);
-    box-shadow: var(--shadow);
+    /* No transitions */
+    box-shadow: 0 2px 6px rgba(139, 92, 246, 0.25);
 }
 
 .btn-assign-flavor:hover {
-    background: var(--gradient-secondary);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-hover);
+    background: #7C3AED;
+    /* No transform */
+    box-shadow: 0 2px 6px rgba(139, 92, 246, 0.25);
 }
 
 .assigned-flavors-container {
-    background: var(--light-color);
-    border: 2px dashed var(--border-color);
-    border-radius: 12px;
+    background: #F8FAFC;
+    border: 2px solid #E0E7FF;
+    border-radius: 8px;
     padding: 1rem;
     min-height: 60px;
     display: flex;
@@ -3799,7 +3804,7 @@ body {
 }
 
 .no-flavors-message {
-    color: var(--medium-gray);
+    color: #64748B;
     font-size: 0.9rem;
     margin: 0;
     width: 100%;
@@ -3812,12 +3817,13 @@ body {
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
-    background: var(--gradient-primary);
-    color: var(--white);
-    border-radius: 20px;
+    background: #6366F1;
+    color: #FFFFFF;
+    border-radius: 8px;
     font-size: 0.85rem;
     font-weight: 500;
-    box-shadow: var(--shadow);
+    box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+    border: 1px solid #4F46E5;
 }
 
 .flavor-tag-assigned i.fa-check {
@@ -3845,23 +3851,23 @@ body {
 
 .flavor-tag-remove {
     background: rgba(255, 255, 255, 0.3);
-    border: none;
-    color: var(--white);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: #FFFFFF;
     width: 18px;
     height: 18px;
-    border-radius: 50%;
+    border-radius: 4px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.7rem;
     padding: 0;
-    transition: var(--transition);
+    /* No transitions */
 }
 
 .flavor-tag-remove:hover {
     background: rgba(255, 255, 255, 0.5);
-    transform: scale(1.1);
+    /* No transform */
 }
 
 /* Flavor Assign Modal */
