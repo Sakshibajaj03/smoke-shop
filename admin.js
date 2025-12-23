@@ -1053,6 +1053,11 @@ function createBrandCardAdmin(brand, productCount = 0, flavorCount = 0, flavors 
                 <h3 class="brand-card-title">${brand.name}</h3>
             </div>
             <div class="brand-header-actions">
+                <div class="display-order-group">
+                    <span class="display-order-label">Display Order:</span>
+                    <input type="number" class="display-order-input" value="${displayOrder}" 
+                           onchange="updateBrandDisplayOrder('${brand.id}', this.value)" min="1">
+                </div>
                 <button class="btn-icon-edit" onclick="editBrand('${brand.id}')" title="Edit Brand">
                     <i class="fas fa-pencil-alt"></i>
                     <span class="btn-label">Edit</span>
@@ -1071,48 +1076,6 @@ function createBrandCardAdmin(brand, productCount = 0, flavorCount = 0, flavors 
             <span class="info-badge flavor-badge">
                 <i class="fas fa-leaf"></i> ${brandFlavors.length} Flavors
             </span>
-            <div class="display-order-group">
-                <span class="display-order-label">Display Order:</span>
-                <input type="number" class="display-order-input" value="${displayOrder}" 
-                       onchange="updateBrandDisplayOrder('${brand.id}', this.value)" min="1">
-            </div>
-        </div>
-        
-        <div class="assigned-flavors-section">
-            <div class="assigned-flavors-header">
-                <h4>Assigned Flavors</h4>
-                <button class="btn-assign-flavor" onclick="openAssignFlavorModal('${brand.id}')">
-                    <i class="fas fa-plus"></i> Assign Flavor
-                </button>
-            </div>
-            <div class="assigned-flavors-container" id="flavors-${brand.id}">
-                ${brandFlavors.length > 0 ? 
-                    brandFlavors.map(flavor => {
-                        // Handle both old string format and new object format
-                        const flavorName = typeof flavor === 'string' ? flavor : (flavor.name || 'Unknown');
-                        const flavorId = typeof flavor === 'string' ? null : (flavor.flavorId || flavor.id || null);
-                        const flavorDocId = typeof flavor === 'string' ? null : (flavor.id || null);
-                        // Use flavor document ID for removal (most reliable identifier)
-                        const flavorIdentifier = flavorDocId || flavorId || flavorName;
-                        // Escape for onclick handler
-                        const identifierEscaped = String(flavorIdentifier).replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        
-                        return `
-                        <span class="flavor-tag-assigned">
-                            <i class="fas fa-check"></i>
-                            <div class="flavor-tag-info">
-                                <span class="flavor-tag-name">${flavorName}</span>
-                                ${flavorId ? `<span class="flavor-tag-id">ID: ${flavorId}</span>` : ''}
-                            </div>
-                            <button class="flavor-tag-remove" onclick="removeFlavorFromBrand('${brand.id}', '${identifierEscaped}')" title="Remove flavor">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </span>
-                    `;
-                    }).join('') : 
-                    '<p class="no-flavors-message">No flavors assigned yet</p>'
-                }
-            </div>
         </div>
     `;
     return card;

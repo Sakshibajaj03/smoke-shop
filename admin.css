@@ -3615,7 +3615,8 @@ body {
 
 .brand-header-actions {
     display: flex;
-    gap: 0.75rem;
+    align-items: center;
+    gap: 1rem;
 }
 
 .btn-icon-edit,
@@ -3723,13 +3724,21 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-left: auto;
+}
+
+.brand-header-actions .display-order-group {
+    margin-right: 0;
 }
 
 .display-order-label {
     font-size: 0.9rem;
     font-weight: 600;
     color: #475569;
+    white-space: nowrap;
+}
+
+.brand-header-actions .display-order-label {
+    font-size: 0.85rem;
 }
 
 .display-order-input {
@@ -3743,6 +3752,12 @@ body {
     background: #FEF3C7;
     color: #92400E;
     /* No transitions */
+}
+
+.brand-header-actions .display-order-input {
+    width: 50px;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.85rem;
 }
 
 .display-order-input:focus {
@@ -3824,6 +3839,9 @@ body {
     font-weight: 500;
     box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
     border: 1px solid #4F46E5;
+    position: relative;
+    max-width: 100%;
+    word-wrap: break-word;
 }
 
 .flavor-tag-assigned i.fa-check {
@@ -3850,24 +3868,34 @@ body {
 }
 
 .flavor-tag-remove {
-    background: rgba(255, 255, 255, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    color: #FFFFFF;
-    width: 18px;
-    height: 18px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 1);
+    color: #EF4444;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
     border-radius: 4px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.7rem;
+    font-size: 0.85rem;
     padding: 0;
-    /* No transitions */
+    flex-shrink: 0;
+    transition: all 0.2s ease;
 }
 
 .flavor-tag-remove:hover {
-    background: rgba(255, 255, 255, 0.5);
-    /* No transform */
+    background: #EF4444;
+    color: #FFFFFF;
+    border-color: #DC2626;
+    transform: scale(1.1);
+}
+
+.flavor-tag-remove i {
+    font-size: 0.75rem;
+    font-weight: 700;
 }
 
 /* Flavor Assign Modal */
