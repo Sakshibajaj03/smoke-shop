@@ -337,20 +337,7 @@ async function handleFlavourSubmit(e) {
         if (editingId) {
             // When editing, allow manual ID change or preserve existing
             if (manualFlavorId) {
-                // Check if the manual ID is already taken by another flavor in the same brand (only if brand is provided)
-                if (brand) {
-                    const existingWithId = await db.collection('flavours')
-                        .where('brand', '==', brand)
-                        .where('flavorId', '==', manualFlavorId)
-                        .get();
-                    
-                    if (!existingWithId.empty) {
-                        const otherFlavorId = existingWithId.docs[0].id;
-                        if (otherFlavorId !== editingId) {
-                            throw new Error(`Flavor ID "${manualFlavorId}" already exists for brand "${brand}". Please use a different ID.`);
-                        }
-                    }
-                }
+                // Allow duplicate IDs if manually entered - user's choice
                 flavorId = manualFlavorId;
             } else {
                 // Preserve existing flavor ID when editing if no new one provided
@@ -365,28 +352,13 @@ async function handleFlavourSubmit(e) {
                 }
             }
         } else {
-            // When creating new flavor
+            // When creating new flavor - ONLY use manual ID, no auto-generation
             if (manualFlavorId) {
-                // Check if the manual ID is already taken in the same brand (only if brand is provided)
-                if (brand) {
-                    const existingWithId = await db.collection('flavours')
-                        .where('brand', '==', brand)
-                        .where('flavorId', '==', manualFlavorId)
-                        .get();
-                    
-                    if (!existingWithId.empty) {
-                        throw new Error(`Flavor ID "${manualFlavorId}" already exists for brand "${brand}". Please use a different ID.`);
-                    }
-                }
+                // Allow duplicate IDs if manually entered - user's choice
                 flavorId = manualFlavorId;
             } else {
-                // Auto-generate unique flavor ID if brand is available
-                if (brand) {
-                    const brandPrefix = brand.toUpperCase().substring(0, 3).replace(/\s/g, '');
-                    const timestamp = Date.now();
-                    const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-                    flavorId = `${brandPrefix}-${timestamp}-${randomStr}`;
-                }
+                // No auto-generation - require manual ID
+                throw new Error('Flavor ID is required. Please provide a flavor ID manually or import through Excel.');
             }
         }
         
@@ -4505,16 +4477,18 @@ function setupFlavourSelector() {
                 if (flavorCheck.empty) {
                     const createFlavor = confirm(`Flavor "${flavourName}" does not exist for brand "${productBrand}". Would you like to create it now?`);
                     if (createFlavor) {
-                        // Auto-generate brand-specific flavor ID
-                        const brandPrefix = productBrand.toUpperCase().substring(0, 3).replace(/\s/g, '');
-                        const timestamp = Date.now();
-                        const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-                        const flavorId = `${brandPrefix}-${timestamp}-${randomStr}`;
+                        // Prompt user for flavor ID - no auto-generation
+                        const flavorId = prompt(`Please enter a Flavor ID for "${flavourName}":`);
+                        if (!flavorId || flavorId.trim() === '') {
+                            alert('Flavor ID is required. Flavor creation cancelled.');
+                            return;
+                        }
                         
+                        // Allow duplicate IDs if manually entered - user's choice
                         await db.collection('flavours').add({
                             name: flavourName,
                             brand: productBrand,
-                            flavorId: flavorId,
+                            flavorId: flavorId.trim(),
                             createdAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
                         
@@ -5351,29 +5325,14 @@ async function ensureBrandsAndFlavoursExist(products) {
                     // Flavor doesn't exist for this brand, create it
                     let finalFlavorId = flavourId;
                     
-                    // If no ID provided, auto-generate one (brand-specific)
+                    // If no ID provided, skip creation - require ID from Excel
                     if (!finalFlavorId || finalFlavorId.trim() === '') {
-                        const brandPrefix = brandName.toUpperCase().substring(0, 3).replace(/\s/g, '');
-                        const timestamp = Date.now();
-                        const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-                        finalFlavorId = `${brandPrefix}-${timestamp}-${randomStr}`;
-                    } else {
-                        // Validate uniqueness of provided ID within the same brand
-                        const idCheck = await db.collection('flavours')
-                            .where('brand', '==', brandName)
-                            .where('flavorId', '==', finalFlavorId)
-                            .limit(1)
-                            .get();
-                        
-                        if (!idCheck.empty) {
-                            // ID already exists for this brand, generate a new one
-                            console.warn(`Flavor ID "${finalFlavorId}" already exists for brand "${brandName}". Auto-generating new ID for "${flavourName}"`);
-                            const brandPrefix = brandName.toUpperCase().substring(0, 3).replace(/\s/g, '');
-                            const timestamp = Date.now();
-                            const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-                            finalFlavorId = `${brandPrefix}-${timestamp}-${randomStr}`;
-                        }
+                        console.warn(`Skipping flavor "${flavourName}" for brand "${brandName}" - no ID provided. Please provide flavorId in Excel file.`);
+                        continue;
                     }
+                    
+                    // Allow duplicate IDs if provided - user's choice, no auto-generation
+                    // Just use the provided ID even if it's a duplicate
                     
                     try {
                         await db.collection('flavours').add({
@@ -5393,41 +5352,28 @@ async function ensureBrandsAndFlavoursExist(products) {
                     const existingData = existingFlavor.data();
                     
                     if (!existingData.flavorId) {
-                        // Existing flavor doesn't have an ID, assign one
+                        // Existing flavor doesn't have an ID - only use provided ID, no auto-generation
                         let finalFlavorId = flavourId;
                         
                         if (!finalFlavorId || finalFlavorId.trim() === '') {
-                            // Auto-generate ID (brand-specific)
-                            const brandPrefix = brandName.toUpperCase().substring(0, 3).replace(/\s/g, '');
-                            const timestamp = Date.now();
-                            const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-                            finalFlavorId = `${brandPrefix}-${timestamp}-${randomStr}`;
+                            // No ID provided and existing flavor has no ID - skip this flavor
+                            console.warn(`Flavor "${flavourName}" for brand "${brandName}" has no ID. Skipping ID assignment. Please add ID manually or through Excel import.`);
+                            finalFlavorId = null;
                         } else {
-                            // Validate uniqueness of provided ID within the same brand
-                            const idCheck = await db.collection('flavours')
-                                .where('brand', '==', brandName)
-                                .where('flavorId', '==', finalFlavorId)
-                                .limit(1)
-                                .get();
-                            
-                            if (!idCheck.empty && idCheck.docs[0].id !== existingFlavor.id) {
-                                // ID already exists for another flavor in this brand, generate a new one
-                                console.warn(`Flavor ID "${finalFlavorId}" already exists for brand "${brandName}". Auto-generating new ID for "${flavourName}"`);
-                                const brandPrefix = brandName.toUpperCase().substring(0, 3).replace(/\s/g, '');
-                                const timestamp = Date.now();
-                                const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-                                finalFlavorId = `${brandPrefix}-${timestamp}-${randomStr}`;
-                            }
+                            // Allow duplicate IDs if provided - user's choice
                         }
                         
-                        try {
-                            await existingFlavor.ref.update({
-                                flavorId: finalFlavorId
-                            });
-                            console.log(`Assigned ID to existing flavour: ${flavourName} for brand "${brandName}" with ID: ${finalFlavorId}`);
-                        } catch (updateError) {
-                            console.error(`Error updating flavour "${flavourName}" for brand "${brandName}":`, updateError);
-                            // Continue with next flavor instead of breaking
+                        // Only update if we have a valid ID
+                        if (finalFlavorId) {
+                            try {
+                                await existingFlavor.ref.update({
+                                    flavorId: finalFlavorId
+                                });
+                                console.log(`Assigned ID to existing flavour: ${flavourName} for brand "${brandName}" with ID: ${finalFlavorId}`);
+                            } catch (updateError) {
+                                console.error(`Error updating flavour "${flavourName}" for brand "${brandName}":`, updateError);
+                                // Continue with next flavor instead of breaking
+                            }
                         }
                     } else if (flavourId && flavourId.trim() !== '' && existingData.flavorId !== flavourId) {
                         // User provided a different ID, but flavor already has one - keep existing
@@ -5592,26 +5538,16 @@ async function importCollection(collectionName, items, productsToSkip, progressC
                         continue;
                     }
                     
-                    // Validate flavor ID uniqueness within the same brand (only if brand is provided)
-                    if (itemData.flavorId && itemData.flavorId.trim() !== '') {
-                        const idCheck = await db.collection('flavours')
-                            .where('brand', '==', itemData.brand.trim())
-                            .where('flavorId', '==', itemData.flavorId.trim())
-                            .limit(1)
-                            .get();
-                        
-                        if (!idCheck.empty) {
+                    // Allow duplicate IDs if provided in Excel - user's choice
+                    // Only require that flavorId is provided, don't check for duplicates
+                    if (!itemData.flavorId || itemData.flavorId.trim() === '') {
+                        if (itemData.brand && itemData.brand.trim() !== '') {
+                            // No auto-generation - require ID from Excel import
                             result.errors++;
-                            result.errorDetails.push(`Row ${i + 1}: Flavor ID "${itemData.flavorId.trim()}" already exists for brand "${itemData.brand.trim()}"`);
+                            result.errorDetails.push(`Row ${i + 1}: Flavor ID is required for flavor "${itemData.name || 'Unknown'}" in brand "${itemData.brand.trim()}". Please provide flavorId in Excel file.`);
                             if (progressCallback) progressCallback(i + 1, items.length);
                             continue;
                         }
-                    } else if (itemData.brand && itemData.brand.trim() !== '') {
-                        // Auto-generate brand-specific flavor ID if not provided but brand exists
-                        const brandPrefix = itemData.brand.trim().toUpperCase().substring(0, 3).replace(/\s/g, '');
-                        const timestamp = Date.now();
-                        const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-                        itemData.flavorId = `${brandPrefix}-${timestamp}-${randomStr}`;
                     }
                 }
                 
