@@ -370,6 +370,9 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         .flavor-card {
@@ -382,6 +385,10 @@
             flex-direction: column;
             gap: 1.25rem;
             position: relative;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         .flavor-id-display {
@@ -454,11 +461,14 @@
 
         /* Responsive Adjustments for All Devices */
         
-        /* Large Tablets (1024px and below) */
+        /* Large Tablets and iPad (1024px and below) */
         @media (max-width: 1024px) {
             .flavors-grid-container {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
                 gap: 1.25rem;
+                width: 100%;
+                max-width: 100%;
+                padding: 0;
             }
 
             .products-sidebar {
@@ -468,14 +478,49 @@
 
             .flavors-display-area {
                 padding: 2rem;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
             }
 
             .selected-product-header {
                 padding: 2rem;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
             }
 
             .selected-product-name {
                 font-size: 1.85rem;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+            }
+
+            .flavor-card {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
+            }
+        }
+
+        /* iPad Portrait (768px - 1024px) */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .flavors-grid-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.25rem;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .flavor-card {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+            }
+
+            .flavors-display-area {
+                padding: 1.75rem;
             }
         }
 
@@ -597,11 +642,24 @@
                 flex: 1;
                 min-height: 0;
                 overflow-y: auto;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
             }
 
             .flavors-grid-container {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                grid-template-columns: 1fr;
                 gap: 1rem;
+                width: 100%;
+                max-width: 100%;
+                padding: 0;
+            }
+
+            .flavor-card {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
             }
 
             .selected-product-header {
@@ -673,11 +731,24 @@
 
             .flavors-display-area {
                 padding: 1.25rem;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
             }
 
             .flavors-grid-container {
                 grid-template-columns: 1fr;
                 gap: 1rem;
+                width: 100%;
+                max-width: 100%;
+                padding: 0;
+            }
+
+            .flavor-card {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
             }
 
             .selected-product-header {
@@ -810,11 +881,23 @@
 
             .flavors-display-area {
                 padding: 1rem;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            .flavors-grid-container {
+                width: 100%;
+                max-width: 100%;
+                padding: 0;
             }
 
             .selected-product-header {
                 padding: 1.25rem 1rem;
                 margin-bottom: 1rem;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
             }
 
             .selected-product-name {
@@ -908,10 +991,22 @@
 
             .flavors-display-area {
                 padding: 0.875rem;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            .flavors-grid-container {
+                width: 100%;
+                max-width: 100%;
+                padding: 0;
             }
 
             .selected-product-header {
                 padding: 1rem 0.875rem;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
             }
 
             .selected-product-name {
@@ -969,6 +1064,20 @@
                 min-height: 0;
                 width: 100%;
                 max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            .flavors-grid-container {
+                width: 100%;
+                max-width: 100%;
+                padding: 0;
+            }
+
+            .flavor-card {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
             }
         }
 
@@ -979,6 +1088,13 @@
         .flavor-name-display {
             word-wrap: break-word;
             overflow-wrap: break-word;
+        }
+
+        .flavor-name-display,
+        .flavor-id-display {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
         }
 
         /* Desktop - Ensure proper spacing for fixed buttons */
