@@ -337,15 +337,27 @@ async function handleFlavourSubmit(e) {
         if (editingId) {
             // When editing, allow manual ID change or preserve existing
             if (manualFlavorId) {
-                // Allow duplicate IDs if manually entered - user's choice
-                flavorId = manualFlavorId;
+                // Check for duplicate flavorId (across all brands to ensure uniqueness)
+                const duplicateIdCheck = await db.collection('flavours')
+                    .where('flavorId', '==', manualFlavorId.trim())
+                    .get();
+                
+                if (!duplicateIdCheck.empty) {
+                    const duplicateFlavor = duplicateIdCheck.docs[0];
+                    // Only throw error if it's a different flavor (not the one being edited)
+                    if (duplicateFlavor.id !== editingId) {
+                        const dupData = duplicateFlavor.data();
+                        throw new Error(`Flavor ID "${manualFlavorId}" is already allocated to flavor "${dupData.name}" (Brand: ${dupData.brand || 'N/A'}). Each flavor ID must be unique.`);
+                    }
+                }
+                flavorId = manualFlavorId.trim();
             } else {
                 // Preserve existing flavor ID when editing if no new one provided
                 try {
                     const existingDoc = await db.collection('flavours').doc(editingId).get();
                     if (existingDoc.exists) {
                         const existingData = existingDoc.data();
-                        flavorId = existingData.flavorId || '';
+                        flavorId = (existingData.flavorId && existingData.flavorId.trim()) ? existingData.flavorId : '';
                     }
                 } catch (error) {
                     console.error('Error fetching existing flavor:', error);
@@ -354,8 +366,17 @@ async function handleFlavourSubmit(e) {
         } else {
             // When creating new flavor - ONLY use manual ID, no auto-generation
             if (manualFlavorId) {
-                // Allow duplicate IDs if manually entered - user's choice
-                flavorId = manualFlavorId;
+                // Check for duplicate flavorId (across all brands to ensure uniqueness)
+                const duplicateIdCheck = await db.collection('flavours')
+                    .where('flavorId', '==', manualFlavorId.trim())
+                    .get();
+                
+                if (!duplicateIdCheck.empty) {
+                    const duplicateFlavor = duplicateIdCheck.docs[0];
+                    const dupData = duplicateFlavor.data();
+                    throw new Error(`Flavor ID "${manualFlavorId}" is already allocated to flavor "${dupData.name}" (Brand: ${dupData.brand || 'N/A'}). Each flavor ID must be unique.`);
+                }
+                flavorId = manualFlavorId.trim();
             } else {
                 // No auto-generation - require manual ID
                 throw new Error('Flavor ID is required. Please provide a flavor ID manually or import through Excel.');
@@ -1134,7 +1155,8 @@ async function loadFlavoursList(snapshot) {
         const flavour = { id: doc.id, ...doc.data() };
         
         // Ensure flavor has an ID (for backwards compatibility with existing flavors)
-        if (!flavour.flavorId) {
+        // Only generate if flavorId is truly missing or empty (not if it's already allocated)
+        if (!flavour.flavorId || (typeof flavour.flavorId === 'string' && !flavour.flavorId.trim())) {
             // Generate ID for existing flavors without one
             const timestamp = Date.now();
             const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -1204,7 +1226,7 @@ function createFlavourCardAdmin(flavour, usageCount = 0) {
     card.dataset.flavorName = (flavour.name || '').toLowerCase();
     card.dataset.flavorBrand = (flavour.brand || '').toLowerCase();
     card.dataset.flavorId = (flavour.flavorId || flavour.id || '').toLowerCase();
-    const flavorIdDisplay = flavour.flavorId || flavour.id || 'N/A';
+    const flavorIdDisplay = (flavour.flavorId && flavour.flavorId.trim()) ? flavour.flavorId : 'N/A';
     const brandName = flavour.brand || 'No Brand';
     card.innerHTML = `
         <div class="flavor-row-content">
@@ -3145,7 +3167,7 @@ async function openAssignFlavorModal(brandId) {
         brandFlavors.push({
             id: doc.id,
             name: flavorData.name || 'Unnamed Flavor',
-            flavorId: flavorData.flavorId || doc.id,
+            flavorId: (flavorData.flavorId && flavorData.flavorId.trim()) ? flavorData.flavorId : 'N/A',
             brand: flavorData.brand || brandName
         });
     });
@@ -3193,6 +3215,7 @@ async function openAssignFlavorModal(brandId) {
                 <p style="margin-bottom: 1rem; color: var(--text-color);">Select a flavor to assign (showing name and ID):</p>
                 <div class="flavor-select-list">
                     ${availableFlavors.map(flavor => {
+                        const flavorIdDisplay = (flavor.flavorId && flavor.flavorId.trim()) ? flavor.flavorId : 'N/A';
                         const flavorData = JSON.stringify({
                             id: flavor.id,
                             name: flavor.name,
@@ -3203,7 +3226,7 @@ async function openAssignFlavorModal(brandId) {
                             <i class="fas fa-check-circle"></i>
                             <div class="flavor-select-info">
                                 <span class="flavor-select-name">${flavor.name}</span>
-                                <span class="flavor-select-id">ID: ${flavor.flavorId}</span>
+                                <span class="flavor-select-id">ID: ${flavorIdDisplay}</span>
                             </div>
                         </div>
                     `;
@@ -3242,10 +3265,11 @@ async function selectFlavorForBrand(brandId, flavorDataJson) {
                 return;
             }
             const flavorDoc = flavorsSnapshot.docs[0];
+            const flavorDocData = flavorDoc.data();
             flavorData = {
                 id: flavorDoc.id,
-                name: flavorDoc.data().name,
-                flavorId: flavorDoc.data().flavorId || flavorDoc.id
+                name: flavorDocData.name,
+                flavorId: (flavorDocData.flavorId && flavorDocData.flavorId.trim()) ? flavorDocData.flavorId : 'N/A'
             };
         }
         
