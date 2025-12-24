@@ -411,65 +411,45 @@
 
         .flavors-grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 0.75rem;
+            grid-template-columns: auto 1fr;
+            gap: 0.5rem 1rem;
             width: 100%;
             max-width: 100%;
             box-sizing: border-box;
-            align-content: start;
             padding: 0;
             margin: 0;
+            align-items: center;
         }
 
         .flavor-card {
-            background: #FFFFFF;
-            border: 2px solid #000000;
-            border-radius: 4px;
-            padding: 0.5rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1.2;
-            max-width: 100%;
-            min-width: 0;
-            box-sizing: border-box;
-            overflow: hidden;
-            min-height: 70px;
-            margin: 0;
+            display: contents;
         }
 
-        .flavor-badge {
+        .flavor-id {
             background: linear-gradient(135deg, #2563EB, #3B82F6);
             color: #FFFFFF;
             font-weight: 900;
-            font-size: 0.75rem;
-            padding: 0.35rem 0.6rem;
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
             border-radius: 5px;
-            width: fit-content;
-            max-width: 100%;
-            margin-bottom: 0.4rem;
-            line-height: 1.1;
+            text-align: center;
+            min-width: 60px;
             box-shadow: 0 3px 6px rgba(37, 99, 235, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
             letter-spacing: 0.5px;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
             box-sizing: border-box;
+            white-space: nowrap;
         }
 
         .flavor-name {
             color: #1E293B;
             font-weight: 700;
-            font-size: 0.7rem;
-            line-height: 1.2;
+            font-size: 0.9rem;
+            line-height: 1.4;
             text-align: left;
-            flex: 1;
-            display: flex;
-            align-items: center;
+            padding: 0.5rem 0;
             word-break: break-word;
             overflow-wrap: break-word;
-            hyphens: auto;
-            max-width: 100%;
         }
 
         .no-flavors-message {
@@ -512,25 +492,34 @@
         
         /* Desktop (1200px and above) - Default layout */
         @media (min-width: 1200px) {
-            .flavors-grid-container {
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-                gap: 0.75rem;
+            .flavor-id {
+                font-size: 0.9rem;
+                padding: 0.6rem 0.85rem;
+            }
+            .flavor-name {
+                font-size: 0.95rem;
             }
         }
 
         /* Large Tablets and Small Desktop (1024px - 1199px) */
         @media (min-width: 1024px) and (max-width: 1199px) {
-            .flavors-grid-container {
-                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-                gap: 0.7rem;
+            .flavor-id {
+                font-size: 0.85rem;
+                padding: 0.55rem 0.8rem;
+            }
+            .flavor-name {
+                font-size: 0.9rem;
             }
         }
 
         /* iPad and Tablets (768px - 1023px) */
         @media (min-width: 768px) and (max-width: 1023px) {
-            .flavors-grid-container {
-                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-                gap: 0.65rem;
+            .flavor-id {
+                font-size: 0.8rem;
+                padding: 0.5rem 0.75rem;
+            }
+            .flavor-name {
+                font-size: 0.85rem;
             }
         }
 
@@ -637,17 +626,18 @@
             }
 
             .flavors-grid-container {
-                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
                 gap: 0.6rem;
                 width: 100%;
                 max-width: 100%;
             }
 
-            .flavor-card {
-                width: 100%;
-                max-width: 100%;
-                min-width: 0;
-                box-sizing: border-box;
+            .flavor-id {
+                font-size: 0.75rem;
+                padding: 0.45rem 0.7rem;
+                min-width: 50px;
+            }
+            .flavor-name {
+                font-size: 0.8rem;
             }
         }
 
@@ -711,17 +701,18 @@
             }
 
             .flavors-grid-container {
-                grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
                 gap: 0.55rem;
                 width: 100%;
                 max-width: 100%;
             }
 
-            .flavor-card {
-                width: 100%;
-                max-width: 100%;
-                min-width: 0;
-                box-sizing: border-box;
+            .flavor-id {
+                font-size: 0.7rem;
+                padding: 0.4rem 0.65rem;
+                min-width: 45px;
+            }
+            .flavor-name {
+                font-size: 0.75rem;
             }
         }
 
@@ -817,17 +808,18 @@
             }
 
             .flavors-grid-container {
-                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
                 gap: 0.5rem;
                 width: 100%;
                 max-width: 100%;
             }
 
-            .flavor-card {
-                width: 100%;
-                max-width: 100%;
-                min-width: 0;
-                box-sizing: border-box;
+            .flavor-id {
+                font-size: 0.65rem;
+                padding: 0.4rem 0.6rem;
+                min-width: 40px;
+            }
+            .flavor-name {
+                font-size: 0.7rem;
             }
 
             .no-selection-message {
@@ -914,17 +906,18 @@
             }
 
             .flavors-grid-container {
-                grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
                 gap: 0.5rem;
                 width: 100%;
                 max-width: 100%;
             }
 
-            .flavor-card {
-                width: 100%;
-                max-width: 100%;
-                min-width: 0;
-                box-sizing: border-box;
+            .flavor-id {
+                font-size: 0.65rem;
+                padding: 0.35rem 0.55rem;
+                min-width: 35px;
+            }
+            .flavor-name {
+                font-size: 0.7rem;
             }
         }
 
@@ -980,17 +973,18 @@
             }
 
             .flavors-grid-container {
-                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
                 gap: 0.6rem;
                 width: 100%;
                 max-width: 100%;
             }
 
-            .flavor-card {
-                width: 100%;
-                max-width: 100%;
-                min-width: 0;
-                box-sizing: border-box;
+            .flavor-id {
+                font-size: 0.75rem;
+                padding: 0.45rem 0.7rem;
+                min-width: 50px;
+            }
+            .flavor-name {
+                font-size: 0.8rem;
             }
         }
 
@@ -1238,8 +1232,8 @@
                     
                     return `
                         <div class="flavor-card">
-                            <div class="flavor-badge"># ${flavorIdDisplay}</div>
-                            <div class="flavor-name">${flavorName.toUpperCase()}</div>
+                            <div class="flavor-id">${flavorIdDisplay}</div>
+                            <div class="flavor-name">${flavorName}</div>
                         </div>
                     `;
                 }).join('');
