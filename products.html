@@ -288,9 +288,10 @@
         }
 
         .product-list-item.active {
-            background: #F1F5F9;
-            border-left: 3px solid #3B82F6;
-            padding-left: calc(1.25rem - 3px);
+            background: #EFF6FF;
+            border-left: 4px solid #2563EB;
+            padding-left: calc(1.25rem - 4px);
+            box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.1);
         }
 
         .product-list-item-name {
@@ -304,7 +305,7 @@
         }
 
         .product-list-item.active .product-list-item-name {
-            color: #0F172A;
+            color: #1E40AF;
             font-weight: 800;
         }
 
@@ -368,8 +369,8 @@
             flex: 1;
             width: 100%;
             background: #F5F7FA;
-            padding: 2rem 2.5rem;
-            overflow-y: auto;
+            padding: 1rem 1.5rem;
+            overflow-y: hidden;
             overflow-x: hidden;
             min-height: 0;
             display: flex;
@@ -411,14 +412,39 @@
 
         .flavors-grid-container {
             display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 0.5rem 1rem;
+            grid-auto-flow: column;
+            grid-auto-columns: auto;
+            gap: 0;
             width: 100%;
             max-width: 100%;
             box-sizing: border-box;
             padding: 0;
             margin: 0;
+            align-items: start;
+        }
+
+        .flavors-column {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.4rem 0.75rem;
             align-items: center;
+            min-width: 0;
+            padding: 0;
+            margin: 0;
+            width: fit-content;
+        }
+
+        .flavors-separator {
+            width: 2px;
+            background: #CBD5E1;
+            margin: 0;
+            padding: 0;
+            align-self: stretch;
+            border-radius: 0;
+            flex-shrink: 0;
+            height: 100%;
+            margin-left: 0;
+            margin-right: 0;
         }
 
         .flavor-card {
@@ -429,25 +455,27 @@
             background: linear-gradient(135deg, #2563EB, #3B82F6);
             color: #FFFFFF;
             font-weight: 900;
-            font-size: 0.85rem;
-            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+            padding: 0.35rem 0.6rem;
             border-radius: 5px;
             text-align: center;
-            min-width: 60px;
+            min-width: 50px;
             box-shadow: 0 3px 6px rgba(37, 99, 235, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
             letter-spacing: 0.5px;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
             box-sizing: border-box;
             white-space: nowrap;
+            margin: 0;
+            justify-self: start;
         }
 
         .flavor-name {
             color: #1E293B;
             font-weight: 700;
-            font-size: 0.9rem;
-            line-height: 1.4;
+            font-size: 0.8rem;
+            line-height: 1.3;
             text-align: left;
-            padding: 0.5rem 0;
+            padding: 0.35rem 0;
             word-break: break-word;
             overflow-wrap: break-word;
         }
@@ -492,34 +520,55 @@
         
         /* Desktop (1200px and above) - Default layout */
         @media (min-width: 1200px) {
+            .flavors-grid-container {
+                grid-auto-columns: minmax(220px, auto);
+            }
             .flavor-id {
-                font-size: 0.9rem;
-                padding: 0.6rem 0.85rem;
+                font-size: 0.7rem;
+                padding: 0.3rem 0.55rem;
+                min-width: 45px;
             }
             .flavor-name {
-                font-size: 0.95rem;
+                font-size: 0.75rem;
+            }
+            .flavors-column {
+                gap: 0.35rem 0.65rem;
             }
         }
 
         /* Large Tablets and Small Desktop (1024px - 1199px) */
         @media (min-width: 1024px) and (max-width: 1199px) {
+            .flavors-grid-container {
+                grid-auto-columns: minmax(200px, auto);
+            }
             .flavor-id {
-                font-size: 0.85rem;
-                padding: 0.55rem 0.8rem;
+                font-size: 0.7rem;
+                padding: 0.3rem 0.5rem;
+                min-width: 42px;
             }
             .flavor-name {
-                font-size: 0.9rem;
+                font-size: 0.75rem;
+            }
+            .flavors-column {
+                gap: 0.35rem 0.6rem;
             }
         }
 
         /* iPad and Tablets (768px - 1023px) */
         @media (min-width: 768px) and (max-width: 1023px) {
+            .flavors-grid-container {
+                grid-auto-columns: minmax(180px, auto);
+            }
             .flavor-id {
-                font-size: 0.8rem;
-                padding: 0.5rem 0.75rem;
+                font-size: 0.65rem;
+                padding: 0.28rem 0.48rem;
+                min-width: 40px;
             }
             .flavor-name {
-                font-size: 0.85rem;
+                font-size: 0.7rem;
+            }
+            .flavors-column {
+                gap: 0.3rem 0.55rem;
             }
         }
 
@@ -619,25 +668,26 @@
             }
 
             .flavors-display-area {
-                padding: 1.5rem;
+                padding: 0.75rem 1rem;
                 width: 100%;
                 max-width: 100%;
                 box-sizing: border-box;
             }
 
             .flavors-grid-container {
-                gap: 0.6rem;
-                width: 100%;
-                max-width: 100%;
+                grid-auto-columns: minmax(160px, auto);
             }
 
             .flavor-id {
-                font-size: 0.75rem;
-                padding: 0.45rem 0.7rem;
-                min-width: 50px;
+                font-size: 0.65rem;
+                padding: 0.28rem 0.45rem;
+                min-width: 38px;
             }
             .flavor-name {
-                font-size: 0.8rem;
+                font-size: 0.7rem;
+            }
+            .flavors-column {
+                gap: 0.3rem 0.5rem;
             }
         }
 
@@ -701,18 +751,18 @@
             }
 
             .flavors-grid-container {
-                gap: 0.55rem;
-                width: 100%;
-                max-width: 100%;
+                grid-auto-columns: minmax(150px, auto);
             }
-
             .flavor-id {
-                font-size: 0.7rem;
-                padding: 0.4rem 0.65rem;
-                min-width: 45px;
+                font-size: 0.65rem;
+                padding: 0.25rem 0.42rem;
+                min-width: 36px;
             }
             .flavor-name {
-                font-size: 0.75rem;
+                font-size: 0.68rem;
+            }
+            .flavors-column {
+                gap: 0.28rem 0.48rem;
             }
         }
 
@@ -801,25 +851,26 @@
             }
 
             .flavors-display-area {
-                padding: 1rem;
+                padding: 0.6rem;
                 width: 100%;
                 max-width: 100%;
                 box-sizing: border-box;
             }
 
             .flavors-grid-container {
-                gap: 0.5rem;
-                width: 100%;
-                max-width: 100%;
+                grid-auto-columns: minmax(140px, auto);
             }
 
             .flavor-id {
-                font-size: 0.65rem;
-                padding: 0.4rem 0.6rem;
-                min-width: 40px;
+                font-size: 0.6rem;
+                padding: 0.25rem 0.4rem;
+                min-width: 34px;
             }
             .flavor-name {
-                font-size: 0.7rem;
+                font-size: 0.65rem;
+            }
+            .flavors-column {
+                gap: 0.25rem 0.45rem;
             }
 
             .no-selection-message {
@@ -906,18 +957,19 @@
             }
 
             .flavors-grid-container {
-                gap: 0.5rem;
-                width: 100%;
-                max-width: 100%;
+                grid-auto-columns: minmax(130px, auto);
+                gap: 0;
             }
-
             .flavor-id {
-                font-size: 0.65rem;
-                padding: 0.35rem 0.55rem;
-                min-width: 35px;
+                font-size: 0.6rem;
+                padding: 0.22rem 0.38rem;
+                min-width: 32px;
             }
             .flavor-name {
-                font-size: 0.7rem;
+                font-size: 0.63rem;
+            }
+            .flavors-column {
+                gap: 0.25rem 0.4rem;
             }
         }
 
@@ -973,9 +1025,8 @@
             }
 
             .flavors-grid-container {
-                gap: 0.6rem;
-                width: 100%;
-                max-width: 100%;
+                grid-auto-columns: minmax(160px, auto);
+                gap: 0;
             }
 
             .flavor-id {
@@ -1225,18 +1276,39 @@
             
             let flavorsHTML = '';
             if (flavours.length > 0) {
-                flavorsHTML = flavours.map((flavor) => {
-                    const flavorInfo = flavorsData[flavor] || { id: 'N/A', name: flavor };
-                    const flavorIdDisplay = flavorInfo.id || 'N/A';
-                    const flavorName = flavorInfo.name || flavor;
+                // Split flavors into chunks of 10
+                const chunkSize = 10;
+                const chunks = [];
+                for (let i = 0; i < flavours.length; i += chunkSize) {
+                    chunks.push(flavours.slice(i, i + chunkSize));
+                }
+                
+                // Generate HTML for each chunk
+                const columnHTMLs = chunks.map((chunk) => {
+                    const chunkHTML = chunk.map((flavor) => {
+                        const flavorInfo = flavorsData[flavor] || { id: 'N/A', name: flavor };
+                        const flavorIdDisplay = flavorInfo.id || 'N/A';
+                        const flavorName = flavorInfo.name || flavor;
+                        
+                        return `
+                            <div class="flavor-card">
+                                <div class="flavor-id">${flavorIdDisplay}</div>
+                                <div class="flavor-name">${flavorName}</div>
+                            </div>
+                        `;
+                    }).join('');
                     
-                    return `
-                        <div class="flavor-card">
-                            <div class="flavor-id">${flavorIdDisplay}</div>
-                            <div class="flavor-name">${flavorName}</div>
-                        </div>
-                    `;
-                }).join('');
+                    return `<div class="flavors-column">${chunkHTML}</div>`;
+                });
+                
+                // Combine columns with separators - alternates between columns and separators
+                flavorsHTML = '';
+                for (let i = 0; i < columnHTMLs.length; i++) {
+                    flavorsHTML += columnHTMLs[i];
+                    if (i < columnHTMLs.length - 1) {
+                        flavorsHTML += '<div class="flavors-separator"></div>';
+                    }
+                }
             } else {
                 flavorsHTML = '<div class="no-flavors-message">No flavors available for this product</div>';
             }
