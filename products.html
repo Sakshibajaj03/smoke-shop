@@ -411,20 +411,14 @@
 
         .flavors-grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: 0.75rem;
             width: 100%;
             max-width: 100%;
             box-sizing: border-box;
             align-content: start;
-        }
-
-        /* Mobile: Adjust grid for smaller screens */
-        @media (max-width: 600px) {
-            .flavors-grid-container {
-                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-                gap: 0.5rem;
-            }
+            padding: 0;
+            margin: 0;
         }
 
         .flavor-card {
@@ -439,9 +433,11 @@
             width: 100%;
             aspect-ratio: 1.2;
             max-width: 100%;
+            min-width: 0;
             box-sizing: border-box;
             overflow: hidden;
             min-height: 70px;
+            margin: 0;
         }
 
         .flavor-badge {
@@ -452,11 +448,13 @@
             padding: 0.35rem 0.6rem;
             border-radius: 5px;
             width: fit-content;
+            max-width: 100%;
             margin-bottom: 0.4rem;
             line-height: 1.1;
             box-shadow: 0 3px 6px rgba(37, 99, 235, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
             letter-spacing: 0.5px;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
         }
 
         .flavor-name {
@@ -469,6 +467,9 @@
             display: flex;
             align-items: center;
             word-break: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            max-width: 100%;
         }
 
         .no-flavors-message {
@@ -509,162 +510,27 @@
 
         /* Responsive Adjustments for All Devices */
         
-        /* Large Tablets and iPad (1024px and below) */
-        @media (max-width: 1024px) {
-            .products-header {
-                padding-left: calc(2.5rem + 180px);
-                padding-right: calc(2.5rem + 150px);
-            }
-
-            .products-sidebar-vertical {
-                width: 220px;
-                min-width: 200px;
-            }
-
-            .products-sidebar-header {
-                padding: 1rem 1.25rem;
-            }
-
-            .product-list-item {
-                padding: 0.875rem 1.25rem;
-            }
-
-            .flavors-section-header {
-                padding: 1.25rem 2rem;
-            }
-
-            .flavors-display-area {
-                padding: 1rem 1.5rem;
-                overflow-y: hidden;
-            }
-
+        /* Desktop (1200px and above) - Default layout */
+        @media (min-width: 1200px) {
             .flavors-grid-container {
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 0.75rem;
+            }
+        }
+
+        /* Large Tablets and Small Desktop (1024px - 1199px) */
+        @media (min-width: 1024px) and (max-width: 1199px) {
+            .flavors-grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
                 gap: 0.7rem;
-                width: 100%;
-                max-width: 100%;
-            }
-
-            .flavor-card {
-                padding: 0.4rem;
-                aspect-ratio: 1.15;
-                min-height: 65px;
-            }
-
-            .flavor-badge {
-                font-size: 0.7rem;
-                padding: 0.3rem 0.55rem;
-                margin-bottom: 0.35rem;
-            }
-
-            .flavor-name {
-                font-size: 0.68rem;
             }
         }
 
-        /* iPad Portrait (768px - 1024px) */
-        @media (min-width: 768px) and (max-width: 1024px) {
-            .products-sidebar-vertical {
-                width: 200px;
-                min-width: 180px;
-            }
-
-            .products-sidebar-header {
-                padding: 0.75rem 1rem;
-            }
-
-            .product-list-item {
-                padding: 0.75rem 1rem;
-            }
-
-            .flavors-display-area {
-                padding: 1rem;
-                overflow-y: hidden;
-            }
-
+        /* iPad and Tablets (768px - 1023px) */
+        @media (min-width: 768px) and (max-width: 1023px) {
             .flavors-grid-container {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 0.6rem;
-                width: 100%;
-                max-width: 100%;
-            }
-
-            .flavor-card {
-                width: 100%;
-                max-width: 100%;
-                min-width: 0;
-                box-sizing: border-box;
-                padding: 0.4rem;
-                aspect-ratio: 1.15;
-                min-height: 60px;
-            }
-
-            .flavor-badge {
-                font-size: 0.65rem;
-                padding: 0.25rem 0.5rem;
-                margin-bottom: 0.3rem;
-            }
-
-            .flavor-name {
-                font-size: 0.65rem;
-            }
-        }
-
-        /* iPad Landscape (1024px - 1366px) */
-        @media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
-            .flavors-display-area {
-                padding: 1rem 1.5rem;
-                overflow-y: hidden;
-            }
-
-            .flavors-grid-container {
-                grid-template-columns: repeat(5, 1fr);
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
                 gap: 0.65rem;
-            }
-
-            .flavor-card {
-                padding: 0.4rem;
-                aspect-ratio: 1.1;
-                min-height: 55px;
-            }
-
-            .flavor-badge {
-                font-size: 0.65rem;
-                padding: 0.25rem 0.5rem;
-                margin-bottom: 0.3rem;
-            }
-
-            .flavor-name {
-                font-size: 0.65rem;
-            }
-        }
-
-        /* iPad Landscape (1024px - 1366px) */
-        @media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
-            .flavors-display-area {
-                padding: 1rem 1.5rem;
-                overflow-y: hidden;
-            }
-
-            .flavors-grid-container {
-                grid-template-columns: repeat(5, 1fr);
-                gap: 0.65rem;
-            }
-
-            .flavor-card {
-                padding: 0.4rem;
-                aspect-ratio: 1.1;
-                min-height: 55px;
-            }
-
-            .flavor-badge {
-                font-size: 0.65rem;
-                padding: 0.25rem 0.5rem;
-                margin-bottom: 0.3rem;
-            }
-
-            .flavor-name {
-                font-size: 0.65rem;
             }
         }
 
@@ -771,11 +637,10 @@
             }
 
             .flavors-grid-container {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.75rem;
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+                gap: 0.6rem;
                 width: 100%;
                 max-width: 100%;
-                padding: 0;
             }
 
             .flavor-card {
@@ -783,7 +648,6 @@
                 max-width: 100%;
                 min-width: 0;
                 box-sizing: border-box;
-                padding: 0;
             }
         }
 
@@ -847,11 +711,10 @@
             }
 
             .flavors-grid-container {
-                grid-template-columns: 1fr;
-                gap: 0.875rem;
+                grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+                gap: 0.55rem;
                 width: 100%;
                 max-width: 100%;
-                padding: 0;
             }
 
             .flavor-card {
@@ -859,7 +722,6 @@
                 max-width: 100%;
                 min-width: 0;
                 box-sizing: border-box;
-                padding: 0;
             }
         }
 
@@ -955,17 +817,16 @@
             }
 
             .flavors-grid-container {
-                grid-template-columns: 1fr;
-                gap: 0.75rem;
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+                gap: 0.5rem;
                 width: 100%;
                 max-width: 100%;
-                padding: 0;
             }
 
             .flavor-card {
-                padding: 0;
                 width: 100%;
                 max-width: 100%;
+                min-width: 0;
                 box-sizing: border-box;
             }
 
@@ -1053,17 +914,16 @@
             }
 
             .flavors-grid-container {
-                grid-template-columns: 1fr;
-                gap: 0.875rem;
+                grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+                gap: 0.5rem;
                 width: 100%;
                 max-width: 100%;
-                padding: 0;
             }
 
             .flavor-card {
-                padding: 0;
                 width: 100%;
                 max-width: 100%;
+                min-width: 0;
                 box-sizing: border-box;
             }
         }
@@ -1120,11 +980,10 @@
             }
 
             .flavors-grid-container {
-                grid-template-columns: 1fr;
-                gap: 0.75rem;
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+                gap: 0.6rem;
                 width: 100%;
                 max-width: 100%;
-                padding: 0;
             }
 
             .flavor-card {
@@ -1132,7 +991,6 @@
                 max-width: 100%;
                 min-width: 0;
                 box-sizing: border-box;
-                padding: 0;
             }
         }
 
