@@ -466,11 +466,11 @@
             background: linear-gradient(135deg, #2563EB, #3B82F6);
             color: #FFFFFF;
             font-weight: 900;
-            font-size: 1.2rem;
-            padding: 0.7rem 1.1rem;
+            font-size: 1.35rem;
+            padding: 0.75rem 1.2rem;
             border-radius: 6px;
             text-align: center;
-            min-width: 75px;
+            min-width: 80px;
             box-shadow: 0 3px 6px rgba(37, 99, 235, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
             letter-spacing: 0.5px;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
@@ -483,10 +483,10 @@
         .flavor-name {
             color: #1E293B;
             font-weight: 700;
-            font-size: 1.25rem;
+            font-size: 1.4rem;
             line-height: 1.6;
             text-align: left;
-            padding: 0.7rem 0;
+            padding: 0.75rem 0;
             word-break: break-word;
             overflow-wrap: break-word;
         }
@@ -535,15 +535,15 @@
                 gap: 0;
             }
             .flavor-id {
-                font-size: 1.15rem;
-                padding: 0.65rem 1rem;
-                min-width: 70px;
+                font-size: 1.3rem;
+                padding: 0.7rem 1.15rem;
+                min-width: 75px;
             }
             .flavor-name {
-                font-size: 1.2rem;
+                font-size: 1.35rem;
             }
             .flavors-column {
-                gap: 0.6rem 1.2rem;
+                gap: 0.65rem 1.3rem;
             }
         }
 
@@ -553,15 +553,15 @@
                 gap: 0;
             }
             .flavor-id {
-                font-size: 1.1rem;
-                padding: 0.6rem 0.95rem;
-                min-width: 65px;
+                font-size: 1.25rem;
+                padding: 0.65rem 1.05rem;
+                min-width: 70px;
             }
             .flavor-name {
-                font-size: 1.15rem;
+                font-size: 1.3rem;
             }
             .flavors-column {
-                gap: 0.55rem 1.1rem;
+                gap: 0.6rem 1.2rem;
             }
         }
 
@@ -571,15 +571,15 @@
                 gap: 0;
             }
             .flavor-id {
-                font-size: 1.1rem;
-                padding: 0.6rem 0.95rem;
-                min-width: 65px;
+                font-size: 1.25rem;
+                padding: 0.65rem 1.05rem;
+                min-width: 70px;
             }
             .flavor-name {
-                font-size: 1.15rem;
+                font-size: 1.3rem;
             }
             .flavors-column {
-                gap: 0.55rem 1.1rem;
+                gap: 0.6rem 1.2rem;
             }
         }
 
@@ -765,15 +765,15 @@
                 grid-auto-columns: minmax(150px, auto);
             }
             .flavor-id {
-                font-size: 1rem;
-                padding: 0.5rem 0.75rem;
-                min-width: 58px;
+                font-size: 1.15rem;
+                padding: 0.55rem 0.8rem;
+                min-width: 62px;
             }
             .flavor-name {
-                font-size: 1.05rem;
+                font-size: 1.2rem;
             }
             .flavors-column {
-                gap: 0.5rem 0.9rem;
+                gap: 0.55rem 1rem;
             }
         }
 
@@ -873,15 +873,15 @@
             }
 
             .flavor-id {
-                font-size: 0.85rem;
-                padding: 0.4rem 0.6rem;
-                min-width: 48px;
+                font-size: 1.1rem;
+                padding: 0.5rem 0.7rem;
+                min-width: 56px;
             }
             .flavor-name {
-                font-size: 0.9rem;
+                font-size: 1.15rem;
             }
             .flavors-column {
-                gap: 0.4rem 0.7rem;
+                gap: 0.5rem 0.9rem;
             }
 
             .no-selection-message {
@@ -1041,12 +1041,12 @@
             }
 
             .flavor-id {
-                font-size: 1rem;
-                padding: 0.55rem 0.8rem;
-                min-width: 60px;
+                font-size: 1.15rem;
+                padding: 0.6rem 0.85rem;
+                min-width: 65px;
             }
             .flavor-name {
-                font-size: 1.05rem;
+                font-size: 1.2rem;
             }
         }
 
@@ -1296,8 +1296,8 @@
             
             let flavorsHTML = '';
             if (sortedFlavours.length > 0) {
-                // Split flavors into batches of 30
-                const batchSize = 30;
+                // Split flavors into batches of 20
+                const batchSize = 20;
                 const batches = [];
                 for (let i = 0; i < sortedFlavours.length; i += batchSize) {
                     batches.push(sortedFlavours.slice(i, i + batchSize));

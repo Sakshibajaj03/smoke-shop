@@ -300,22 +300,45 @@ async function handleFlavourSubmit(e) {
         const manualFlavorId = document.getElementById('flavourId').value.trim() || '';
         const imageFile = document.getElementById('flavourImage').files[0];
         
+        // Get selected product (single product per flavor document)
+        const flavourProductsSelect = document.getElementById('flavourProducts');
+        const selectedProductId = flavourProductsSelect ? flavourProductsSelect.value.trim() : '';
+        
+        if (!name) {
+            throw new Error('Flavor name is required.');
+        }
+        
+        if (!selectedProductId) {
+            throw new Error('Please select a product to assign this flavor to. Each flavor entry is tied to one product.');
+        }
+        
+        const selectedProductIds = [selectedProductId]; // Convert to array for consistency
+        
         statusDiv.textContent = editingId ? 'Updating flavour...' : 'Adding flavour...';
         statusDiv.className = 'status-message';
         statusDiv.style.display = 'block';
         
-        // Check for duplicate flavor name within the same brand (only if both brand and name are provided)
-        if (brand && name) {
-            const existingFlavors = await db.collection('flavours')
-                .where('brand', '==', brand)
-                .where('name', '==', name)
-                .get();
+        // Validate: Check for duplicate flavor name within each selected product
+        for (const productId of selectedProductIds) {
+            const productDoc = await db.collection('products').doc(productId).get();
+            if (!productDoc.exists) {
+                throw new Error(`Product with ID ${productId} not found.`);
+            }
             
-            if (!existingFlavors.empty) {
-                const existingFlavor = existingFlavors.docs[0];
-                // Allow if editing the same flavor
-                if (!editingId || existingFlavor.id !== editingId) {
-                    throw new Error(`Flavor "${name}" already exists for brand "${brand}". Each flavor name must be unique within a brand.`);
+            const product = productDoc.data();
+            const existingFlavors = Array.isArray(product.flavour) ? product.flavour : (product.flavour ? [product.flavour] : []);
+            
+            // Check if this flavor name already exists in this product
+            if (existingFlavors.some(f => {
+                if (typeof f === 'string') return f === name;
+                return f.name === name || f === name;
+            })) {
+                // If editing, check if it's the same flavor being edited
+                if (editingId) {
+                    // Allow editing existing assignment
+                    continue;
+                } else {
+                    throw new Error(`Flavor "${name}" already exists in product "${product.name}". Each flavor name must be unique within a product.`);
                 }
             }
         }
@@ -325,83 +348,138 @@ async function handleFlavourSubmit(e) {
             imageUrl = await uploadFlavourImage(imageFile);
         }
         
-        // Generate or use manual flavor ID (brand-specific)
-        let flavorId = '';
-        if (editingId) {
-            // When editing, allow manual ID change or preserve existing
-            if (manualFlavorId) {
-                // Allow duplicate IDs if manually entered - user's choice
-                flavorId = manualFlavorId;
-            } else {
-                // Preserve existing flavor ID when editing if no new one provided
+        // Create SEPARATE flavor document for EACH product-flavor-ID combination
+        // This ensures that same flavor name with different IDs in different products are separate entries
+        const createdFlavorIds = [];
+        
+        for (const productId of selectedProductIds) {
+            const productDoc = await db.collection('products').doc(productId).get();
+            if (!productDoc.exists) {
+                throw new Error(`Product with ID ${productId} not found.`);
+            }
+            
+            const product = productDoc.data();
+            
+            // Determine flavor ID for this product
+            let flavorIdForProduct = manualFlavorId;
+            
+            if (editingId) {
+                // When editing, get the existing flavor document
                 try {
-                    const existingDoc = await db.collection('flavours').doc(editingId).get();
-                    if (existingDoc.exists) {
-                        const existingData = existingDoc.data();
-                        flavorId = existingData.flavorId || '';
+                    const existingFlavorDoc = await db.collection('flavours').doc(editingId).get();
+                    if (existingFlavorDoc.exists) {
+                        const existingData = existingFlavorDoc.data();
+                        // If editing a flavor tied to this specific product, preserve its ID
+                        if (existingData.productId === productId && existingData.flavorId) {
+                            flavorIdForProduct = existingData.flavorId;
+                        }
                     }
                 } catch (error) {
                     console.error('Error fetching existing flavor:', error);
                 }
-            }
-        } else {
-            // When creating new flavor - ONLY use manual ID, no auto-generation
-            if (manualFlavorId) {
-                // Allow duplicate IDs if manually entered - user's choice
-                flavorId = manualFlavorId;
+                
+                // Override with manual ID if provided
+                if (manualFlavorId) {
+                    flavorIdForProduct = manualFlavorId;
+                }
             } else {
-                // No auto-generation - require manual ID
-                throw new Error('Flavor ID is required. Please provide a flavor ID manually or import through Excel.');
-            }
-        }
-        
-        const flavourData = {};
-        
-        // Only include fields that have values
-        if (name) {
-            flavourData.name = name;
-        }
-        if (brand) {
-            flavourData.brand = brand;
-        }
-        if (flavorId) {
-            flavourData.flavorId = flavorId;
-        }
-        
-        // Only update image if a new one was uploaded
-        if (imageUrl) {
-            flavourData.image = imageUrl;
-        }
-        
-        // Preserve existing image if editing and no new image uploaded
-        if (editingId && !imageUrl) {
-            if (form.dataset.existingImage) {
-                flavourData.image = form.dataset.existingImage;
-            } else {
-                try {
-                    const existingDoc = await db.collection('flavours').doc(editingId).get();
-                    if (existingDoc.exists) {
-                        const existingData = existingDoc.data();
-                        if (existingData.image) {
-                            flavourData.image = existingData.image;
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error fetching existing flavour image:', error);
+                // New flavor - require manual ID
+                if (!manualFlavorId) {
+                    throw new Error(`Flavor ID is required for product "${product.name}". Each product-flavor combination needs a unique ID.`);
                 }
             }
+            
+            if (!flavorIdForProduct) {
+                throw new Error(`Flavor ID is required for product "${product.name}".`);
+            }
+            
+            // Check if this flavor ID already exists for this product (within the product, IDs must be unique)
+            const existingFlavors = Array.isArray(product.flavour) ? product.flavour : (product.flavour ? [product.flavour] : []);
+            const flavorIdExists = existingFlavors.some(f => {
+                if (typeof f === 'object' && f.flavorId) {
+                    return f.flavorId === flavorIdForProduct && f.name !== name; // Same ID but different name = conflict
+                }
+                return false;
+            });
+            
+            if (flavorIdExists) {
+                throw new Error(`Flavor ID "${flavorIdForProduct}" already exists in product "${product.name}" with a different flavor name. Each flavor ID must be unique within a product.`);
+            }
+            
+            // Create flavor data for THIS product-flavor-ID combination
+            const flavourData = {
+                name: name,
+                productId: productId, // Single product ID - each flavor document is tied to ONE product
+                flavorId: flavorIdForProduct,
+                brand: product.brand || brand || '' // Get brand from product, fallback to form input
+            };
+            
+            // Only update image if a new one was uploaded
+            if (imageUrl) {
+                flavourData.image = imageUrl;
+            }
+            
+            // Preserve existing image if editing and no new image uploaded
+            if (editingId && !imageUrl) {
+                if (form.dataset.existingImage) {
+                    flavourData.image = form.dataset.existingImage;
+                } else {
+                    try {
+                        const existingDoc = await db.collection('flavours').doc(editingId).get();
+                        if (existingDoc.exists) {
+                            const existingData = existingDoc.data();
+                            if (existingData.image) {
+                                flavourData.image = existingData.image;
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error fetching existing flavour image:', error);
+                    }
+                }
+            }
+            
+            if (editingId) {
+                // Update existing flavor document (only if it belongs to this product)
+                const existingFlavorDoc = await db.collection('flavours').doc(editingId).get();
+                if (existingFlavorDoc.exists) {
+                    const existingData = existingFlavorDoc.data();
+                    if (existingData.productId === productId) {
+                        await db.collection('flavours').doc(editingId).update(flavourData);
+                        createdFlavorIds.push(editingId);
+                    }
+                }
+            } else {
+                // Create NEW separate flavor document for this product-flavor-ID combination
+                flavourData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                const newFlavorRef = await db.collection('flavours').add(flavourData);
+                createdFlavorIds.push(newFlavorRef.id);
+                
+                // Update product to include this flavor with its ID
+                const updatedFlavors = existingFlavors.filter(f => {
+                    // Remove existing flavor with same name (if updating)
+                    if (typeof f === 'string') return f !== name;
+                    if (typeof f === 'object' && f.name) return f.name !== name;
+                    return f !== name;
+                });
+                
+                // Add new flavor with ID
+                updatedFlavors.push({
+                    name: name,
+                    flavorId: flavorIdForProduct
+                });
+                
+                await db.collection('products').doc(productId).update({
+                    flavour: updatedFlavors
+                });
+            }
         }
         
-        
-        if (editingId) {
-            await db.collection('flavours').doc(editingId).update(flavourData);
+        if (editingId && createdFlavorIds.length > 0) {
             console.log('Flavour updated successfully in Firebase');
             statusDiv.textContent = 'Flavour updated successfully! Changes will reflect on the index page automatically.';
-        } else {
-            flavourData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-            await db.collection('flavours').add(flavourData);
-            console.log('Flavour added successfully to Firebase');
-            statusDiv.textContent = 'Flavour added successfully! Changes will reflect on the index page automatically.';
+        } else if (createdFlavorIds.length > 0) {
+            console.log(`Created ${createdFlavorIds.length} separate flavor document(s) in Firebase`);
+            statusDiv.textContent = `Flavour added successfully to ${createdFlavorIds.length} product(s)! Each product-flavor-ID combination is stored separately.`;
         }
         
         statusDiv.className = 'status-message success';
@@ -467,6 +545,19 @@ async function handleProductSubmit(e) {
         const featured = document.getElementById('productFeatured').checked || false;
         const imageFile = document.getElementById('productImage').files[0];
         
+        // Check for duplicate flavor names within this product
+        const flavorNames = new Set();
+        const processedFlavors = [];
+        
+        for (const flavor of selectedFlavours) {
+            const flavorName = typeof flavor === 'string' ? flavor : (flavor.name || flavor);
+            if (flavorNames.has(flavorName)) {
+                throw new Error(`Duplicate flavor "${flavorName}" found. Each flavor name must be unique within a product.`);
+            }
+            flavorNames.add(flavorName);
+            processedFlavors.push(flavor);
+        }
+        
         statusDiv.textContent = editingId ? 'Updating product...' : 'Adding product...';
         statusDiv.className = 'status-message';
         statusDiv.style.display = 'block';
@@ -515,8 +606,20 @@ async function handleProductSubmit(e) {
         if (brand) {
             productData.brand = brand;
         }
-        if (selectedFlavours && selectedFlavours.length > 0) {
-            productData.flavour = Array.isArray(selectedFlavours) ? selectedFlavours : [selectedFlavours];
+        // Store flavors - ensure each has a name and flavorId structure
+        if (processedFlavors && processedFlavors.length > 0) {
+            productData.flavour = processedFlavors.map(flavor => {
+                if (typeof flavor === 'string') {
+                    // If it's just a string, we need to look up the flavor to get its ID
+                    // For now, store as object with name
+                    return { name: flavor, flavorId: '' }; // ID will be assigned when flavor is created/assigned
+                } else if (typeof flavor === 'object' && flavor.name) {
+                    // Already has structure
+                    return flavor;
+                } else {
+                    return { name: String(flavor), flavorId: '' };
+                }
+            });
         } else {
             productData.flavour = [];
         }
@@ -650,6 +753,7 @@ function loadExistingData() {
     // Load products list
     db.collection('products').onSnapshot((snapshot) => {
         loadProductsList(snapshot);
+        populateFlavorProductsDropdown(snapshot);
     });
     
     // Slider image previews removed
@@ -2517,11 +2621,30 @@ async function editFlavour(flavourId) {
             brandSelect.dispatchEvent(new Event('change'));
         }
         
-        // Wait a bit for any brand-dependent updates
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Wait a bit for any brand-dependent updates and products dropdown to populate
+        await new Promise(resolve => setTimeout(resolve, 300));
         
         document.getElementById('flavourName').value = flavour.name || '';
-        document.getElementById('flavourId').value = flavour.flavorId || '';
+        
+        // Handle product assignment - populate product select (single product per flavor)
+        const flavourProductsSelect = document.getElementById('flavourProducts');
+        if (flavourProductsSelect) {
+            // Set selected product based on productId
+            if (flavour.productId) {
+                flavourProductsSelect.value = flavour.productId;
+            } else if (flavour.productAssignments && Array.isArray(flavour.productAssignments) && flavour.productAssignments.length > 0) {
+                // Fallback to old format - use first assignment
+                flavourProductsSelect.value = flavour.productAssignments[0].productId;
+            }
+            
+            // Set flavor ID
+            if (flavour.flavorId) {
+                document.getElementById('flavourId').value = flavour.flavorId;
+            } else if (flavour.productAssignments && Array.isArray(flavour.productAssignments) && flavour.productAssignments.length > 0) {
+                // Fallback to old format
+                document.getElementById('flavourId').value = flavour.productAssignments[0].flavorId;
+            }
+        }
         
         // Show existing image if available
         const preview = document.getElementById('previewFlavour');
