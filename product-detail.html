@@ -892,31 +892,10 @@
                 snapshot.forEach((doc) => {
                     const flavor = doc.data();
                     if (flavor.name) {
-                        // Store flavors by product ID and name
-                        const productIds = flavor.productIds || [];
-                        const normalizedName = flavor.name.trim().toLowerCase();
-                        const flavorId = (flavor.flavorId && flavor.flavorId.trim()) ? flavor.flavorId.trim() : 'N/A';
-                        
-                        productIds.forEach(productId => {
-                            // Store by productId:name for accurate matching
-                            const productNameKey = `${productId}:${normalizedName}`;
-                            flavorsData[productNameKey] = {
-                                id: flavorId,
-                                name: flavor.name,
-                                productId: productId,
-                                originalName: flavor.name
-                            };
-                        });
-                        
-                        // Also store by name only for backward compatibility (use first product's ID)
-                        if (!flavorsData[normalizedName] && productIds.length > 0) {
-                            flavorsData[normalizedName] = {
-                                id: flavorId,
-                                name: flavor.name,
-                                productId: productIds[0],
-                                originalName: flavor.name
-                            };
-                        }
+                        flavorsData[flavor.name] = {
+                            id: flavor.flavorId || doc.id,
+                            name: flavor.name
+                        };
                     }
                 });
                 return flavorsData;
@@ -1010,27 +989,8 @@
                             </h2>
                             <div class="flavor-list">
                                 ${flavors.map((flavor, index) => {
-                                    // Try to find flavor with normalized name (case-insensitive, trimmed)
-                                    const normalizedFlavor = (flavor || '').trim().toLowerCase();
-                                    let flavorInfo = null;
-                                    
-                                    // First try to match by productId:name (most accurate)
-                                    if (product.id) {
-                                        const productNameKey = `${product.id}:${normalizedFlavor}`;
-                                        flavorInfo = flavorsData[productNameKey];
-                                    }
-                                    
-                                    // Fallback to name-only match
-                                    if (!flavorInfo) {
-                                        flavorInfo = flavorsData[normalizedFlavor] || flavorsData[flavor];
-                                    }
-                                    
-                                    // Default if not found
-                                    if (!flavorInfo) {
-                                        flavorInfo = { id: 'N/A', name: flavor };
-                                    }
-                                    
-                                    const flavorIdDisplay = (flavorInfo.id && flavorInfo.id !== 'N/A') ? flavorInfo.id : 'N/A';
+                                    const flavorInfo = flavorsData[flavor] || { id: 'N/A', name: flavor };
+                                    const flavorIdDisplay = flavorInfo.id || 'N/A';
                                     const safeFlavor = flavor.replace(/'/g, "\\'");
                                     const safeId = `flavor-${index}`;
                                     
