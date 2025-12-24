@@ -25,7 +25,7 @@
     <div class="fixed-back-btn">
         <a href="index.html" class="back-btn-link">
             <i class="fas fa-arrow-left"></i>
-            <span class="back-btn-text">Back to Brands</span>
+            <span class="back-btn-text">Back to Disposable</span>
         </a>
     </div>
 
@@ -60,9 +60,6 @@
             
             <!-- Flavors Display Section -->
             <div class="flavors-section">
-            <div class="flavors-section-header" id="flavorsSectionHeader" style="display: none;">
-                <h2 class="flavors-section-title" id="selectedProductName">Select a Product</h2>
-            </div>
             <div class="flavors-display-area" id="flavorsDisplayArea">
                 <div class="no-selection-message">
                     <div class="no-selection-icon">
@@ -375,6 +372,8 @@
             overflow-y: auto;
             overflow-x: hidden;
             min-height: 0;
+            display: flex;
+            flex-direction: column;
         }
 
         .no-selection-message {
@@ -412,63 +411,64 @@
 
         .flavors-grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.75rem;
             width: 100%;
             max-width: 100%;
             box-sizing: border-box;
+            align-content: start;
         }
 
-        /* Mobile: Force single column for very small screens */
+        /* Mobile: Adjust grid for smaller screens */
         @media (max-width: 600px) {
             .flavors-grid-container {
-                grid-template-columns: 1fr !important;
-                gap: 0.75rem;
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+                gap: 0.5rem;
             }
         }
 
         .flavor-card {
             background: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 8px;
-            padding: 1rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 2px solid #000000;
+            border-radius: 4px;
+            padding: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
             position: relative;
             width: 100%;
+            aspect-ratio: 1.2;
             max-width: 100%;
             box-sizing: border-box;
             overflow: hidden;
+            min-height: 70px;
         }
 
-        .flavor-id-display {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0.875rem;
-            background: #3B82F6;
-            border: none;
-            border-radius: 6px;
+        .flavor-badge {
+            background: linear-gradient(135deg, #2563EB, #3B82F6);
+            color: #FFFFFF;
+            font-weight: 900;
             font-size: 0.75rem;
-            font-family: 'Courier New', monospace;
-            font-weight: 700;
-            color: #FFFFFF;
+            padding: 0.35rem 0.6rem;
+            border-radius: 5px;
             width: fit-content;
+            margin-bottom: 0.4rem;
+            line-height: 1.1;
+            box-shadow: 0 3px 6px rgba(37, 99, 235, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
-        .flavor-id-display i {
-            font-size: 0.7rem;
-            color: #FFFFFF;
-        }
-
-        .flavor-name-display {
-            font-size: 1.1rem;
-            font-weight: 700;
+        .flavor-name {
             color: #1E293B;
-            letter-spacing: -0.01em;
-            line-height: 1.3;
+            font-weight: 700;
+            font-size: 0.7rem;
+            line-height: 1.2;
+            text-align: left;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            word-break: break-word;
         }
 
         .no-flavors-message {
@@ -534,28 +534,31 @@
             }
 
             .flavors-display-area {
-                padding: 1.5rem 2rem;
+                padding: 1rem 1.5rem;
+                overflow-y: hidden;
             }
 
             .flavors-grid-container {
-                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-                gap: 1rem;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.7rem;
                 width: 100%;
                 max-width: 100%;
             }
 
             .flavor-card {
-                padding: 1rem;
-                gap: 0.75rem;
+                padding: 0.4rem;
+                aspect-ratio: 1.15;
+                min-height: 65px;
             }
 
-            .flavor-name-display {
-                font-size: 1rem;
-            }
-
-            .flavor-id-display {
-                padding: 0.45rem 0.75rem;
+            .flavor-badge {
                 font-size: 0.7rem;
+                padding: 0.3rem 0.55rem;
+                margin-bottom: 0.35rem;
+            }
+
+            .flavor-name {
+                font-size: 0.68rem;
             }
         }
 
@@ -567,24 +570,21 @@
             }
 
             .products-sidebar-header {
-                padding: 1rem 1.25rem;
+                padding: 0.75rem 1rem;
             }
 
             .product-list-item {
-                padding: 0.875rem 1.25rem;
-            }
-
-            .flavors-section-header {
-                padding: 1.25rem 1.5rem;
+                padding: 0.75rem 1rem;
             }
 
             .flavors-display-area {
-                padding: 1.5rem 1.75rem;
+                padding: 1rem;
+                overflow-y: hidden;
             }
 
             .flavors-grid-container {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 0.875rem;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.6rem;
                 width: 100%;
                 max-width: 100%;
             }
@@ -594,17 +594,76 @@
                 max-width: 100%;
                 min-width: 0;
                 box-sizing: border-box;
-                padding: 0.875rem;
-                gap: 0.625rem;
+                padding: 0.4rem;
+                aspect-ratio: 1.15;
+                min-height: 60px;
             }
 
-            .flavor-name-display {
-                font-size: 0.9rem;
-                line-height: 1.3;
+            .flavor-badge {
+                font-size: 0.65rem;
+                padding: 0.25rem 0.5rem;
+                margin-bottom: 0.3rem;
             }
 
-            .flavor-id-display {
-                padding: 0.4rem 0.7rem;
+            .flavor-name {
+                font-size: 0.65rem;
+            }
+        }
+
+        /* iPad Landscape (1024px - 1366px) */
+        @media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+            .flavors-display-area {
+                padding: 1rem 1.5rem;
+                overflow-y: hidden;
+            }
+
+            .flavors-grid-container {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 0.65rem;
+            }
+
+            .flavor-card {
+                padding: 0.4rem;
+                aspect-ratio: 1.1;
+                min-height: 55px;
+            }
+
+            .flavor-badge {
+                font-size: 0.65rem;
+                padding: 0.25rem 0.5rem;
+                margin-bottom: 0.3rem;
+            }
+
+            .flavor-name {
+                font-size: 0.65rem;
+            }
+        }
+
+        /* iPad Landscape (1024px - 1366px) */
+        @media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+            .flavors-display-area {
+                padding: 1rem 1.5rem;
+                overflow-y: hidden;
+            }
+
+            .flavors-grid-container {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 0.65rem;
+            }
+
+            .flavor-card {
+                padding: 0.4rem;
+                aspect-ratio: 1.1;
+                min-height: 55px;
+            }
+
+            .flavor-badge {
+                font-size: 0.65rem;
+                padding: 0.25rem 0.5rem;
+                margin-bottom: 0.3rem;
+            }
+
+            .flavor-name {
                 font-size: 0.65rem;
             }
         }
@@ -724,18 +783,7 @@
                 max-width: 100%;
                 min-width: 0;
                 box-sizing: border-box;
-                padding: 0.875rem;
-                gap: 0.625rem;
-            }
-
-            .flavor-name-display {
-                font-size: 0.95rem;
-                line-height: 1.3;
-            }
-
-            .flavor-id-display {
-                padding: 0.4rem 0.7rem;
-                font-size: 0.65rem;
+                padding: 0;
             }
         }
 
@@ -811,18 +859,7 @@
                 max-width: 100%;
                 min-width: 0;
                 box-sizing: border-box;
-                padding: 1.25rem;
-                gap: 0.875rem;
-            }
-
-            .flavor-name-display {
-                font-size: 1.1rem;
-                line-height: 1.3;
-            }
-
-            .flavor-id-display {
-                padding: 0.5rem 0.85rem;
-                font-size: 0.75rem;
+                padding: 0;
             }
         }
 
@@ -926,21 +963,10 @@
             }
 
             .flavor-card {
-                padding: 1rem;
-                gap: 0.75rem;
+                padding: 0;
                 width: 100%;
                 max-width: 100%;
                 box-sizing: border-box;
-            }
-
-            .flavor-id-display {
-                padding: 0.45rem 0.8rem;
-                font-size: 0.7rem;
-            }
-
-            .flavor-name-display {
-                font-size: 1rem;
-                line-height: 1.3;
             }
 
             .no-selection-message {
@@ -1035,14 +1061,10 @@
             }
 
             .flavor-card {
-                padding: 1rem;
+                padding: 0;
                 width: 100%;
                 max-width: 100%;
                 box-sizing: border-box;
-            }
-
-            .flavor-name-display {
-                font-size: 1.1rem;
             }
         }
 
@@ -1110,41 +1132,16 @@
                 max-width: 100%;
                 min-width: 0;
                 box-sizing: border-box;
-                padding: 1rem;
-                gap: 0.75rem;
-            }
-
-            .flavor-name-display {
-                font-size: 1rem;
-                line-height: 1.3;
-            }
-
-            .flavor-id-display {
-                padding: 0.45rem 0.8rem;
-                font-size: 0.7rem;
+                padding: 0;
             }
         }
 
         /* Prevent text overflow */
         .brand-title span,
         .product-list-item-name,
-        .selected-product-name,
-        .flavor-name-display {
+        .selected-product-name {
             word-wrap: break-word;
             overflow-wrap: break-word;
-        }
-
-        .flavor-name-display,
-        .flavor-id-display {
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            max-width: 100%;
-            hyphens: auto;
-        }
-
-        /* Ensure flavor cards never overflow */
-        .flavor-card * {
-            max-width: 100%;
         }
 
         /* Desktop - Ensure proper spacing for fixed buttons */
@@ -1365,37 +1362,26 @@
 
         function displayProductFlavors(productId) {
             const flavorsArea = document.getElementById('flavorsDisplayArea');
-            const flavorsHeader = document.getElementById('flavorsSectionHeader');
-            const selectedProductNameEl = document.getElementById('selectedProductName');
             const product = filteredProducts.find(p => p.id === productId);
             
             if (!product) {
-                flavorsHeader.style.display = 'none';
                 flavorsArea.innerHTML = '<div class="no-selection-message"><h3>Product not found</h3></div>';
                 return;
             }
             
             const flavours = Array.isArray(product.flavour) ? product.flavour : (product.flavour ? [product.flavour] : []);
             
-            // Show the flavors section header
-            flavorsHeader.style.display = 'block';
-            
-            // Set product name only
-            selectedProductNameEl.innerHTML = `<i class="fas fa-cube"></i> ${product.name || 'Unnamed Product'}`;
-            
             let flavorsHTML = '';
             if (flavours.length > 0) {
                 flavorsHTML = flavours.map((flavor) => {
                     const flavorInfo = flavorsData[flavor] || { id: 'N/A', name: flavor };
                     const flavorIdDisplay = flavorInfo.id || 'N/A';
+                    const flavorName = flavorInfo.name || flavor;
                     
                     return `
                         <div class="flavor-card">
-                            <div class="flavor-id-display">
-                                <i class="fas fa-hashtag"></i>
-                                <span>${flavorIdDisplay}</span>
-                            </div>
-                            <div class="flavor-name-display">${flavor}</div>
+                            <div class="flavor-badge"># ${flavorIdDisplay}</div>
+                            <div class="flavor-name">${flavorName.toUpperCase()}</div>
                         </div>
                     `;
                 }).join('');

@@ -158,17 +158,21 @@ body {
     padding: 0 2rem;
     gap: 2rem;
     flex-wrap: wrap;
+    min-height: 70px;
 }
 
 .admin-logo {
     padding: 1rem 0;
+    flex-shrink: 0;
 }
 
 .admin-logo h2 {
-    font-size: 1.3rem;
-    font-weight: 700;
+    font-size: 1.4rem;
+    font-weight: 800;
     margin: 0;
     color: var(--white);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    letter-spacing: -0.02em;
 }
 
 .admin-nav {
@@ -183,34 +187,39 @@ body {
 .nav-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
     padding: 1rem 1.5rem;
     color: var(--white);
     text-decoration: none;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
     border-bottom: 3px solid transparent;
     position: relative;
     white-space: nowrap;
+    font-weight: 500;
+    font-size: 0.95rem;
+    border-radius: 6px 6px 0 0;
+}
+
+.nav-item i {
+    font-size: 1rem;
+    opacity: 0.9;
 }
 
 .nav-item:hover {
-    background: var(--sidebar-hover);
-}
-
-.nav-item.active {
-    background: var(--sidebar-hover);
-    border-bottom-color: var(--white);
-    font-weight: 700;
-}
-
-.nav-item:hover {
-    background: var(--sidebar-hover);
-    border-bottom-color: var(--white);
+    background: rgba(255, 255, 255, 0.15);
+    border-bottom-color: rgba(255, 255, 255, 0.5);
     transform: translateY(-2px);
 }
 
-.nav-item span {
-    font-size: 0.95rem;
+.nav-item.active {
+    background: rgba(255, 255, 255, 0.2);
+    border-bottom-color: var(--white);
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-item.active i {
+    opacity: 1;
 }
 
 .admin-header-actions {
@@ -220,35 +229,57 @@ body {
 }
 
 .view-site-btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.7rem 1.5rem;
-    background: var(--primary-color);
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.25);
     color: var(--white);
     text-decoration: none;
-    border-radius: 5px;
-    transition: all 0.3s;
+    border-radius: 8px;
+    transition: all 0.3s ease;
     white-space: nowrap;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .view-site-btn:hover {
-    background: #45a049;
+    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.5);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .logout-btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--white);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    font-weight: 600;
+    font-size: 0.95rem;
     font-family: inherit;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .logout-btn:hover {
-    background: rgba(255, 255, 255, 0.25) !important;
+    background: rgba(239, 68, 68, 0.9);
+    border-color: rgba(255, 255, 255, 0.5);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.logout-btn i {
+    font-size: 0.9rem;
 }
 
 /* Main Content */

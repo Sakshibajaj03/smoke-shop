@@ -8,8 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Setup file previews
     setupFilePreviews();
-    // Load dashboard data
-    loadDashboardData();
 });
 
 // Setup navigation between sections
@@ -33,11 +31,6 @@ function setupNavigation() {
             const section = document.getElementById(sectionId);
             if (section) {
                 section.classList.add('active');
-                
-                // Reload dashboard data when dashboard is opened
-                if (sectionId === 'dashboard') {
-                    loadDashboardData();
-                }
             }
         });
     });
