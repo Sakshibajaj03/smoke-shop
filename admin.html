@@ -315,29 +315,27 @@
                     <div class="product-modal-body">
                         <form id="flavourForm" class="admin-form">
                             <div class="form-group">
-                                <label>Brand <span style="color: var(--medium-gray); font-weight: normal; font-size: 0.9rem;">(Optional)</span></label>
-                                <select id="flavourBrand" class="input-field">
-                                    <option value="">Select Brand</option>
-                                </select>
-                                <small style="color: var(--text-color); font-size: 0.85rem; display: block; margin-top: 0.5rem;">
-                                    <i class="fas fa-info-circle"></i> Each flavor is unique per brand. The same flavor name can exist for different brands.
+                                <label>Flavour Name <span style="color: var(--error-red);">*</span></label>
+                                <input type="text" id="flavourName" class="input-field" placeholder="e.g., Watermelon Ice" required>
+                                <small style="color: var(--text-color); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                                    Flavor name must be unique within each product
                                 </small>
                             </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Flavour Name</label>
-                                    <input type="text" id="flavourName" class="input-field" placeholder="e.g., Watermelon Ice">
-                                    <small style="color: var(--text-color); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
-                                        Must be unique within the selected brand
-                                    </small>
+                            <div class="form-group">
+                                <label>Flavor ID <span style="color: var(--error-red);">*</span></label>
+                                <input type="text" id="flavourId" class="input-field" placeholder="e.g., 1, 2, 3" required>
+                                <small style="color: var(--text-color); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                                    Unique ID for this flavor within the assigned product(s)
+                                </small>
+                            </div>
+                            <div class="form-group">
+                                <label>Assign to Product(s) <span style="color: var(--error-red);">*</span></label>
+                                <div id="productSelectionContainer" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--light-gray); border-radius: 5px; padding: 1rem;">
+                                    <div class="loading">Loading products...</div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Flavor ID <span style="color: var(--medium-gray); font-weight: normal;">(Optional)</span></label>
-                                    <input type="text" id="flavourId" class="input-field" placeholder="Auto-generated if empty">
-                                    <small style="color: var(--text-color); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
-                                        Leave empty to auto-generate a unique ID for this brand
-                                    </small>
-                                </div>
+                                <small style="color: var(--text-color); font-size: 0.85rem; display: block; margin-top: 0.5rem;">
+                                    <i class="fas fa-info-circle"></i> Select one or more products. The same flavor name can exist in different products with the same or different IDs.
+                                </small>
                             </div>
                             <div class="form-group">
                                 <label>Flavour Image</label>

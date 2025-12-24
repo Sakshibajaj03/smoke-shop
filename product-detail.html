@@ -892,24 +892,30 @@
                 snapshot.forEach((doc) => {
                     const flavor = doc.data();
                     if (flavor.name) {
-                        // Store with normalized key (trimmed, lowercase) for case-insensitive lookup
+                        // Store flavors by product ID and name
+                        const productIds = flavor.productIds || [];
                         const normalizedName = flavor.name.trim().toLowerCase();
                         const flavorId = (flavor.flavorId && flavor.flavorId.trim()) ? flavor.flavorId.trim() : 'N/A';
                         
-                        // Store by name (for backward compatibility and general lookup)
-                        flavorsData[normalizedName] = {
-                            id: flavorId,
-                            name: flavor.name,
-                            brand: flavor.brand || '',
-                            originalName: flavor.name
-                        };
-                        // Also store with original name as key for backward compatibility
-                        flavorsData[flavor.name] = flavorsData[normalizedName];
+                        productIds.forEach(productId => {
+                            // Store by productId:name for accurate matching
+                            const productNameKey = `${productId}:${normalizedName}`;
+                            flavorsData[productNameKey] = {
+                                id: flavorId,
+                                name: flavor.name,
+                                productId: productId,
+                                originalName: flavor.name
+                            };
+                        });
                         
-                        // Also store by brand+name combination for more accurate matching
-                        if (flavor.brand) {
-                            const brandNameKey = `${flavor.brand.trim().toLowerCase()}:${normalizedName}`;
-                            flavorsData[brandNameKey] = flavorsData[normalizedName];
+                        // Also store by name only for backward compatibility (use first product's ID)
+                        if (!flavorsData[normalizedName] && productIds.length > 0) {
+                            flavorsData[normalizedName] = {
+                                id: flavorId,
+                                name: flavor.name,
+                                productId: productIds[0],
+                                originalName: flavor.name
+                            };
                         }
                     }
                 });
@@ -1008,10 +1014,10 @@
                                     const normalizedFlavor = (flavor || '').trim().toLowerCase();
                                     let flavorInfo = null;
                                     
-                                    // First try to match by brand+name (most accurate)
-                                    if (product.brand) {
-                                        const brandNameKey = `${product.brand.trim().toLowerCase()}:${normalizedFlavor}`;
-                                        flavorInfo = flavorsData[brandNameKey];
+                                    // First try to match by productId:name (most accurate)
+                                    if (product.id) {
+                                        const productNameKey = `${product.id}:${normalizedFlavor}`;
+                                        flavorInfo = flavorsData[productNameKey];
                                     }
                                     
                                     // Fallback to name-only match
