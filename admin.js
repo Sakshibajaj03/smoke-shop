@@ -15,25 +15,62 @@ function setupNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
     const sections = document.querySelectorAll('.content-section');
     
+    // Function to show a section
+    const showSection = (sectionId) => {
+        // Remove active class from all nav items and sections
+        navItems.forEach(nav => nav.classList.remove('active'));
+        sections.forEach(section => section.classList.remove('active'));
+        
+        // Add active class to corresponding nav item
+        const navItem = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
+        if (navItem) {
+            navItem.classList.add('active');
+        }
+        
+        // Show corresponding section
+        const section = document.getElementById(sectionId);
+        if (section) {
+            section.classList.add('active');
+            
+            // If showing flavours section, ensure flavours are loaded
+            if (sectionId === 'flavours') {
+                // Reload flavours to ensure they're displayed
+                db.collection('flavours').get().then((snapshot) => {
+                    console.log('Reloading flavours when section shown:', snapshot.size, 'flavours');
+                    loadFlavoursList(snapshot);
+                }).catch((error) => {
+                    console.error('Error reloading flavours:', error);
+                });
+            }
+        }
+    };
+    
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
-            
-            // Remove active class from all nav items and sections
-            navItems.forEach(nav => nav.classList.remove('active'));
-            sections.forEach(section => section.classList.remove('active'));
-            
-            // Add active class to clicked nav item
-            item.classList.add('active');
-            
-            // Show corresponding section
             const sectionId = item.getAttribute('data-section');
-            const section = document.getElementById(sectionId);
-            if (section) {
-                section.classList.add('active');
-            }
+            showSection(sectionId);
+            // Update URL hash
+            window.location.hash = sectionId;
         });
     });
+    
+    // Handle initial hash or hash change
+    const handleHashChange = () => {
+        const hash = window.location.hash.substring(1); // Remove #
+        if (hash && ['brands', 'flavours', 'products', 'database'].includes(hash)) {
+            showSection(hash);
+        } else {
+            // Default to brands if no hash
+            showSection('brands');
+        }
+    };
+    
+    // Handle initial load
+    handleHashChange();
+    
+    // Handle hash changes
+    window.addEventListener('hashchange', handleHashChange);
 }
 
 // Setup form handlers
@@ -824,8 +861,19 @@ function loadExistingData() {
     
     // Load flavours for product form dropdown (will be filtered by brand)
     db.collection('flavours').onSnapshot((snapshot) => {
+        console.log('Flavours onSnapshot fired:', snapshot.size, 'flavours');
         updateFlavorDropdown();
         loadFlavoursList(snapshot);
+    }, (error) => {
+        console.error('Error in flavours onSnapshot listener:', error);
+    });
+    
+    // Also do an initial load to ensure flavours are available immediately
+    db.collection('flavours').get().then((snapshot) => {
+        console.log('Initial flavours load:', snapshot.size, 'flavours');
+        loadFlavoursList(snapshot);
+    }).catch((error) => {
+        console.error('Error in initial flavours load:', error);
     });
     
     // Setup add flavour button
@@ -1355,9 +1403,21 @@ function createBrandCardAdmin(brand, productCount = 0, flavorCount = 0, flavors 
 // Load flavours list in admin
 async function loadFlavoursList(snapshot) {
     const flavoursList = document.getElementById('flavoursList');
-    if (!flavoursList) return;
+    if (!flavoursList) {
+        console.warn('flavoursList element not found');
+        return;
+    }
+    
+    console.log('loadFlavoursList called with snapshot:', snapshot ? snapshot.size : 'null', 'flavours');
+    
+    if (!snapshot) {
+        console.error('Invalid snapshot provided to loadFlavoursList');
+        flavoursList.innerHTML = '<div class="empty-state"><p>Error loading flavours. Please refresh the page.</p></div>';
+        return;
+    }
     
     if (snapshot.empty) {
+        console.log('Flavours snapshot is empty');
         flavoursList.innerHTML = '<div class="empty-state"><p>No flavours added yet. Add your first flavour above!</p></div>';
         return;
     }
@@ -6101,4 +6161,173 @@ async function importCollection(collectionName, items, productsToSkip, progressC
     
     return result;
 }
+
+// Export all data to Excel
+async function exportDataToExcel() {
+    try {
+        // Show loading message
+        const statusDiv = document.getElementById('databaseStatus') || document.createElement('div');
+        statusDiv.id = 'databaseStatus';
+        statusDiv.className = 'status-message';
+        statusDiv.style.display = 'block';
+        statusDiv.textContent = 'Preparing export...';
+        
+        // Insert status div if it doesn't exist
+        const databaseSection = document.getElementById('database');
+        if (databaseSection && !document.getElementById('databaseStatus')) {
+            const formContainer = databaseSection.querySelector('.form-container');
+            if (formContainer) {
+                formContainer.insertBefore(statusDiv, formContainer.firstChild);
+            }
+        }
+        
+        // Fetch all data from Firebase
+        statusDiv.textContent = 'Loading data from Firebase...';
+        
+        const [productsSnapshot, brandsSnapshot, flavoursSnapshot] = await Promise.all([
+            db.collection('products').get(),
+            db.collection('brands').get(),
+            db.collection('flavours').get()
+        ]);
+        
+        // Convert snapshots to arrays
+        const products = [];
+        productsSnapshot.forEach((doc) => {
+            const product = { id: doc.id, ...doc.data() };
+            
+            // Preserve flavor information with IDs for export
+            let flavourNames = '';
+            let flavourIds = '';
+            
+            if (product.flavour) {
+                if (Array.isArray(product.flavour)) {
+                    // Handle both string and object formats
+                    const flavorNamesList = [];
+                    const flavorIdsList = [];
+                    
+                    product.flavour.forEach(f => {
+                        if (typeof f === 'string') {
+                            flavorNamesList.push(f);
+                            flavorIdsList.push(''); // No ID for string format
+                        } else if (typeof f === 'object' && f !== null) {
+                            const flavorName = f.name || String(f);
+                            const flavorId = f.flavorId || f.id || '';
+                            flavorNamesList.push(flavorName);
+                            flavorIdsList.push(flavorId);
+                        }
+                    });
+                    
+                    flavourNames = flavorNamesList.join(', ');
+                    flavourIds = flavorIdsList.join(', ');
+                } else if (typeof product.flavour === 'string') {
+                    flavourNames = product.flavour;
+                    flavourIds = '';
+                }
+            }
+            
+            // Store both names and IDs separately for export
+            product.flavour = flavourNames;
+            product.flavour_ids = flavourIds;
+            
+            products.push(product);
+        });
+        
+        const brands = [];
+        brandsSnapshot.forEach((doc) => {
+            brands.push({ id: doc.id, ...doc.data() });
+        });
+        
+        const flavours = [];
+        flavoursSnapshot.forEach((doc) => {
+            flavours.push({ id: doc.id, ...doc.data() });
+        });
+        
+        statusDiv.textContent = 'Creating Excel file...';
+        
+        // Create workbook
+        const wb = XLSX.utils.book_new();
+        
+        // Convert data to worksheets
+        if (products.length > 0) {
+            // Prepare products data
+            const productsData = products.map(product => {
+                const row = {
+                    id: product.id,
+                    name: product.name || '',
+                    brand: product.brand || '',
+                    price: product.price || 0,
+                    description: product.description || '',
+                    stock: product.stock || 0,
+                    status: product.status || 'Available',
+                    featured: product.featured || false,
+                    flavour: product.flavour || '', // Comma-separated flavor names
+                    flavour_ids: product.flavour_ids || '', // Comma-separated flavor IDs (same order as names)
+                    image: product.image || ''
+                };
+                return row;
+            });
+            const wsProducts = XLSX.utils.json_to_sheet(productsData);
+            XLSX.utils.book_append_sheet(wb, wsProducts, 'products');
+        }
+        
+        if (brands.length > 0) {
+            const brandsData = brands.map(brand => ({
+                id: brand.id,
+                name: brand.name || '',
+                description: brand.description || '',
+                displayOrder: brand.displayOrder || ''
+            }));
+            const wsBrands = XLSX.utils.json_to_sheet(brandsData);
+            XLSX.utils.book_append_sheet(wb, wsBrands, 'brands');
+        }
+        
+        if (flavours.length > 0) {
+            const flavoursData = flavours.map(flavour => ({
+                id: flavour.id,
+                name: flavour.name || '',
+                brand: flavour.brand || '',
+                flavorId: flavour.flavorId || '',
+                productId: flavour.productId || '',
+                product: flavour.product || '',
+                image: flavour.image || ''
+            }));
+            const wsFlavours = XLSX.utils.json_to_sheet(flavoursData);
+            XLSX.utils.book_append_sheet(wb, wsFlavours, 'flavours');
+        }
+        
+        // Generate filename with timestamp
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+        const filename = `smoke-shop-export-${timestamp}.xlsx`;
+        
+        // Write file
+        statusDiv.textContent = 'Downloading file...';
+        XLSX.writeFile(wb, filename);
+        
+        // Show success message
+        statusDiv.textContent = `✅ Export successful! File "${filename}" downloaded.`;
+        statusDiv.style.background = '#d4edda';
+        statusDiv.style.color = '#155724';
+        statusDiv.style.borderColor = '#c3e6cb';
+        
+        // Hide status after 5 seconds
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+        }, 5000);
+        
+    } catch (error) {
+        console.error('Error exporting data:', error);
+        const statusDiv = document.getElementById('databaseStatus');
+        if (statusDiv) {
+            statusDiv.textContent = `❌ Error exporting data: ${error.message}`;
+            statusDiv.style.background = '#f8d7da';
+            statusDiv.style.color = '#721c24';
+            statusDiv.style.borderColor = '#f5c6cb';
+        } else {
+            alert(`Error exporting data: ${error.message}`);
+        }
+    }
+}
+
+// Make export function globally available
+window.exportDataToExcel = exportDataToExcel;
 
