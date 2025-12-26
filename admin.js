@@ -889,6 +889,13 @@ function loadExistingData() {
     db.collection('products').onSnapshot((snapshot) => {
         loadProductsList(snapshot);
         populateFlavorProductsDropdown(snapshot);
+        
+        // Refresh flavours list to update usage counts when products change
+        db.collection('flavours').get().then((flavoursSnapshot) => {
+            loadFlavoursList(flavoursSnapshot);
+        }).catch((error) => {
+            console.error('Error refreshing flavours list after product change:', error);
+        });
     }, (error) => {
         console.error('Error in products onSnapshot listener:', error);
     });
@@ -1510,19 +1517,67 @@ async function loadFlavoursList(snapshot) {
             flavour.flavorId = generatedFlavorId;
         }
         
-        // Count how many products use this flavor (only products from the same brand)
+        // Count how many products use this flavor
+        // Check by flavorId first (most accurate), then by name
         let usageCount = 0;
         const flavorBrand = flavour.brand || '';
+        const flavorName = flavour.name || '';
+        const flavorId = flavour.flavorId || flavour.id || '';
+        
         products.forEach(product => {
-            // Only count if product brand matches flavor brand
-            if (product.brand === flavorBrand && product.flavour) {
-                if (Array.isArray(product.flavour)) {
-                    if (product.flavour.includes(flavour.name)) {
-                        usageCount++;
+            // Only count if product brand matches flavor brand (if brand is specified)
+            if (flavorBrand && product.brand !== flavorBrand) {
+                return; // Skip if brands don't match
+            }
+            
+            if (!product.flavour) {
+                return; // Skip if product has no flavours
+            }
+            
+            let isUsed = false;
+            
+            if (Array.isArray(product.flavour)) {
+                // Check each flavour in the array
+                for (const productFlavor of product.flavour) {
+                    if (typeof productFlavor === 'object' && productFlavor !== null) {
+                        // Object format: check by flavorId first, then by name
+                        const productFlavorId = productFlavor.flavorId || productFlavor.id || '';
+                        const productFlavorName = productFlavor.name || '';
+                        
+                        if (flavorId && productFlavorId && productFlavorId === flavorId) {
+                            isUsed = true;
+                            break;
+                        } else if (productFlavorName && productFlavorName.toLowerCase() === flavorName.toLowerCase()) {
+                            isUsed = true;
+                            break;
+                        }
+                    } else if (typeof productFlavor === 'string') {
+                        // String format: check by name
+                        if (productFlavor.toLowerCase() === flavorName.toLowerCase()) {
+                            isUsed = true;
+                            break;
+                        }
                     }
-                } else if (product.flavour === flavour.name) {
-                    usageCount++;
                 }
+            } else if (typeof product.flavour === 'string') {
+                // Single string flavour
+                if (product.flavour.toLowerCase() === flavorName.toLowerCase()) {
+                    isUsed = true;
+                }
+            } else if (typeof product.flavour === 'object' && product.flavour !== null) {
+                // Single object flavour
+                const productFlavorId = product.flavour.flavorId || product.flavour.id || '';
+                const productFlavorName = product.flavour.name || '';
+                
+                if (flavorId && productFlavorId && productFlavorId === flavorId) {
+                    isUsed = true;
+                } else if (productFlavorName && productFlavorName.toLowerCase() === flavorName.toLowerCase()) {
+                    isUsed = true;
+                }
+            }
+            
+            if (isUsed) {
+                usageCount++;
             }
         });
         
