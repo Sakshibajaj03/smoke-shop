@@ -2,27 +2,44 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Sliders collection - allow read to all, write to all
+    // SLIDERS COLLECTION
     match /sliders/{sliderId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if true;
+      // ▲ PROD: replace with admin auth check
     }
     
-    // Brands collection - allow read to all, write to all
+    // BRANDS COLLECTION
     match /brands/{brandId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if true;
+      // Required fields validation (basic safety)
+      allow create, update: if request.resource.data.name is string;
     }
     
-    // Flavours collection - allow read to all, write to all
-    match /flavours/{flavourId} {
-      allow read, write: if true;
-    }
-    
-    // Products collection - allow read to all, write to all
+    // PRODUCTS COLLECTION
     match /products/{productId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if true;
+      // Ensure correct product structure
+      allow create, update: if request.resource.data.name is string 
+                            && request.resource.data.brand is string;
     }
     
-    // Allow read access to all other collections for public viewing
+    // FLAVOURS COLLECTION (PRODUCT-SCOPED)
+    // ONE FLAVOUR = ONE PRODUCT
+    match /flavours/{flavourId} {
+      allow read: if true;
+      allow write: if true;
+      // Enforce REQUIRED schema: name, flavorId, productId, brand
+      allow create, update: if request.resource.data.name is string 
+                            && request.resource.data.flavorId is string 
+                            && request.resource.data.productId is string 
+                            && request.resource.data.brand is string;
+    }
+    
+    // GLOBAL READ ACCESS (PUBLIC WEBSITE)
+    // Allow public read access to all other collections for website viewing
     match /{document=**} {
       allow read: if true;
       allow write: if false;

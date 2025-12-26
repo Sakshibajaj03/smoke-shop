@@ -1285,22 +1285,136 @@
             
             const flavours = Array.isArray(product.flavour) ? product.flavour : (product.flavour ? [product.flavour] : []);
             
-            // Sort flavors by ID in ascending order
-            const sortedFlavours = flavours.slice().sort((a, b) => {
-                const flavorA = flavorsData[a] || { id: 'N/A', name: a };
-                const flavorB = flavorsData[b] || { id: 'N/A', name: b };
-                const idA = parseInt(flavorA.id) || 999999;
-                const idB = parseInt(flavorB.id) || 999999;
-                return idA - idB;
-            });
+            // Debug: Log flavours to help identify issues
+            console.log('Product:', product.name);
+            console.log('Raw flavours array:', flavours);
+            if (flavours.length > 0) {
+                console.log('First flavour:', flavours[0]);
+                console.log('First flavour type:', typeof flavours[0]);
+                if (typeof flavours[0] === 'object' && flavours[0] !== null) {
+                    console.log('First flavour keys:', Object.keys(flavours[0]));
+                    console.log('First flavour structure:', JSON.stringify(flavours[0], null, 2));
+                }
+            }
             
+            // Helper function to extract flavour data from object or string
+            const getFlavorData = (flavor) => {
+                // Handle null or undefined
+                if (flavor === null || flavor === undefined) {
+                    console.warn('Flavor is null or undefined');
+                    return { id: 'N/A', name: 'Unknown' };
+                }
+                
+                // Handle string format
+                if (typeof flavor === 'string') {
+                    // Legacy string format - try to find in flavorsData
+                    const flavorInfo = flavorsData[flavor] || { id: 'N/A', name: flavor };
+                    return {
+                        id: flavorInfo.id || 'N/A',
+                        name: flavorInfo.name || flavor || 'Unknown'
+                    };
+                }
+                
+                // Handle object format
+                if (typeof flavor === 'object') {
+                    // Check if it's a Firestore special object (timestamp, reference, etc.)
+                    if (flavor.toDate || flavor.toMillis || (flavor.constructor && flavor.constructor.name === 'Timestamp')) {
+                        console.warn('Flavor appears to be a Firestore timestamp:', flavor);
+                        return { id: 'N/A', name: 'Invalid Flavor Data' };
+                    }
+                    
+                    // Try to get name from various possible properties - check in order of likelihood
+                    let flavorName = '';
+                    const nameProps = ['name', 'flavorName', 'flavourName', 'flavor_name', 'flavour_name'];
+                    
+                    for (const prop of nameProps) {
+                        if (flavor.hasOwnProperty && flavor.hasOwnProperty(prop)) {
+                            const value = flavor[prop];
+                            if (value && typeof value === 'string' && value.trim() !== '') {
+                                flavorName = value.trim();
+                                break;
+                            }
+                        } else if (flavor[prop] && typeof flavor[prop] === 'string' && flavor[prop].trim() !== '') {
+                            flavorName = flavor[prop].trim();
+                            break;
+                        }
+                    }
+                    
+                    // If still no name, try to find any string property that looks like a name
+                    if (!flavorName) {
+                        for (const key in flavor) {
+                            if (flavor.hasOwnProperty) {
+                                if (!flavor.hasOwnProperty(key)) continue;
+                            }
+                            const value = flavor[key];
+                            if (value && 
+                                typeof value === 'string' && 
+                                value.trim() !== '' && 
+                                key !== 'id' && 
+                                key !== 'flavorId' && 
+                                key !== 'flavourId' &&
+                                key !== 'brand' &&
+                                !key.includes('image') &&
+                                !key.includes('url') &&
+                                !key.includes('path') &&
+                                value.length < 100) { // Reasonable name length
+                                flavorName = value.trim();
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // If still no name found, use a default
+                    if (!flavorName) {
+                        console.warn('Could not extract name from flavor object. Keys:', Object.keys(flavor), 'Object:', flavor);
+                        flavorName = 'Unknown Flavor';
+                    }
+                    
+                    // Try to get ID from various possible properties
+                    let flavorId = 'N/A';
+                    const idProps = ['flavorId', 'id', 'flavourId', 'flavor_id', 'flavour_id'];
+                    for (const prop of idProps) {
+                        if (flavor.hasOwnProperty && flavor.hasOwnProperty(prop)) {
+                            const value = flavor[prop];
+                            if (value && (typeof value === 'string' || typeof value === 'number')) {
+                                flavorId = String(value);
+                                break;
+                            }
+                        } else if (flavor[prop] && (typeof flavor[prop] === 'string' || typeof flavor[prop] === 'number')) {
+                            flavorId = String(flavor[prop]);
+                            break;
+                        }
+                    }
+                    
+                    // Final safety check - ensure name is never "[object Object]"
+                    if (flavorName === '[object Object]' || flavorName.includes('[object')) {
+                        console.error('Detected [object Object] in flavor name. Original object:', flavor);
+                        flavorName = 'Unknown Flavor';
+                    }
+                    
+                    return {
+                        id: flavorId,
+                        name: flavorName
+                    };
+                }
+                
+                // Fallback for any other type
+                const fallbackName = String(flavor);
+                if (fallbackName === '[object Object]' || fallbackName.includes('[object')) {
+                    console.error('Fallback resulted in [object Object]. Type:', typeof flavor, 'Value:', flavor);
+                    return { id: 'N/A', name: 'Unknown Flavor' };
+                }
+                return { id: 'N/A', name: fallbackName || 'Unknown' };
+            };
+            
+            // Keep flavors in the same order as they were added/imported (no sorting)
             let flavorsHTML = '';
-            if (sortedFlavours.length > 0) {
+            if (flavours.length > 0) {
                 // Split flavors into batches of 20
                 const batchSize = 20;
                 const batches = [];
-                for (let i = 0; i < sortedFlavours.length; i += batchSize) {
-                    batches.push(sortedFlavours.slice(i, i + batchSize));
+                for (let i = 0; i < flavours.length; i += batchSize) {
+                    batches.push(flavours.slice(i, i + batchSize));
                 }
                 
                 // Generate HTML for each batch
@@ -1314,17 +1428,62 @@
                     
                     // Generate HTML for each chunk (column)
                     const columnHTMLs = chunks.map((chunk) => {
-                        const chunkHTML = chunk.map((flavor) => {
-                            const flavorInfo = flavorsData[flavor] || { id: 'N/A', name: flavor };
-                            const flavorIdDisplay = flavorInfo.id || 'N/A';
-                            const flavorName = flavorInfo.name || flavor;
-                            
-                            return `
-                                <div class="flavor-card">
-                                    <div class="flavor-id">${flavorIdDisplay}</div>
-                                    <div class="flavor-name">${flavorName}</div>
-                                </div>
-                            `;
+                        const chunkHTML = chunk.map((flavor, flavorIndex) => {
+                            try {
+                                // Log each flavor being processed
+                                console.log(`Processing flavor ${flavorIndex}:`, flavor, 'Type:', typeof flavor);
+                                
+                                const flavorData = getFlavorData(flavor);
+                                
+                                // Ensure flavorData is valid
+                                if (!flavorData || typeof flavorData !== 'object') {
+                                    console.error('getFlavorData returned invalid result:', flavorData);
+                                    return `
+                                        <div class="flavor-card">
+                                            <div class="flavor-id">N/A</div>
+                                            <div class="flavor-name">Invalid Data</div>
+                                        </div>
+                                    `;
+                                }
+                                
+                                // Safely extract ID and name
+                                let flavorIdDisplay = 'N/A';
+                                let flavorName = 'Unknown Flavor';
+                                
+                                if (flavorData.id !== undefined && flavorData.id !== null) {
+                                    flavorIdDisplay = String(flavorData.id);
+                                }
+                                
+                                if (flavorData.name !== undefined && flavorData.name !== null) {
+                                    const nameStr = String(flavorData.name);
+                                    // Final safety check - never allow [object Object]
+                                    if (nameStr === '[object Object]' || nameStr.includes('[object')) {
+                                        console.error('Flavor name is [object Object]. Flavor data:', flavorData, 'Original:', flavor);
+                                        flavorName = 'Unknown Flavor';
+                                    } else {
+                                        flavorName = nameStr;
+                                    }
+                                }
+                                
+                                // Escape HTML to prevent XSS
+                                const escapedId = flavorIdDisplay.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                                const escapedName = flavorName.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                                
+                                return `
+                                    <div class="flavor-card">
+                                        <div class="flavor-id">${escapedId}</div>
+                                        <div class="flavor-name">${escapedName}</div>
+                                    </div>
+                                `;
+                            } catch (error) {
+                                console.error('Error processing flavor:', error, 'Flavor object:', flavor);
+                                return `
+                                    <div class="flavor-card">
+                                        <div class="flavor-id">N/A</div>
+                                        <div class="flavor-name">Error Loading</div>
+                                    </div>
+                                `;
+                            }
                         }).join('');
                         
                         return `<div class="flavors-column">${chunkHTML}</div>`;

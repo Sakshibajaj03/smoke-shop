@@ -952,8 +952,38 @@
             variantQuantities = {};
             const flavors = product.flavour ? (Array.isArray(product.flavour) ? product.flavour : [product.flavour]) : [];
             
+            // Helper function to get flavour key (for variantQuantities)
+            const getFlavorKey = (flavor) => {
+                if (typeof flavor === 'string') {
+                    return flavor;
+                } else if (typeof flavor === 'object' && flavor !== null) {
+                    return flavor.name || String(flavor);
+                }
+                return String(flavor);
+            };
+            
+            // Helper function to get flavour data
+            const getFlavorData = (flavor) => {
+                if (typeof flavor === 'string') {
+                    const flavorInfo = flavorsData[flavor] || { id: 'N/A', name: flavor };
+                    return {
+                        id: flavorInfo.id || 'N/A',
+                        name: flavorInfo.name || flavor,
+                        key: flavor
+                    };
+                } else if (typeof flavor === 'object' && flavor !== null) {
+                    return {
+                        id: flavor.flavorId || flavor.id || 'N/A',
+                        name: flavor.name || String(flavor),
+                        key: flavor.name || String(flavor)
+                    };
+                }
+                return { id: 'N/A', name: String(flavor), key: String(flavor) };
+            };
+            
             flavors.forEach(flavor => {
-                variantQuantities[flavor] = 0;
+                const flavorKey = getFlavorKey(flavor);
+                variantQuantities[flavorKey] = 0;
             });
 
             const imgUrl = window.getImageUrl ? window.getImageUrl(product.image, 'product', product.brand, product.name) : (product.image || 'images/Foger/foger-switch-pro-30k-puffs-disposable-vape-pod.webp');
@@ -989,16 +1019,17 @@
                             </h2>
                             <div class="flavor-list">
                                 ${flavors.map((flavor, index) => {
-                                    const flavorInfo = flavorsData[flavor] || { id: 'N/A', name: flavor };
-                                    const flavorIdDisplay = flavorInfo.id || 'N/A';
-                                    const safeFlavor = flavor.replace(/'/g, "\\'");
+                                    const flavorData = getFlavorData(flavor);
+                                    const flavorIdDisplay = flavorData.id || 'N/A';
+                                    const flavorName = flavorData.name || String(flavor);
+                                    const safeFlavor = flavorName.replace(/'/g, "\\'");
                                     const safeId = `flavor-${index}`;
                                     
                                     return `
                                         <div class="flavor-item">
                                             <div class="flavor-info">
                                                 <div class="flavor-name-row">
-                                                    <span class="flavor-name">${flavor}</span>
+                                                    <span class="flavor-name">${flavorName}</span>
                                                     <span class="flavor-id-badge">
                                                         <i class="fas fa-hashtag"></i>
                                                         <span>${flavorIdDisplay}</span>
@@ -1046,7 +1077,12 @@
             variantQuantities[flavor] = newQty;
             
             const flavors = currentProduct.flavour ? (Array.isArray(currentProduct.flavour) ? currentProduct.flavour : [currentProduct.flavour]) : [];
-            const index = flavors.indexOf(flavor);
+            // Find index by matching flavor name (since flavor parameter is the name string)
+            const index = flavors.findIndex(f => {
+                if (typeof f === 'string') return f === flavor;
+                if (typeof f === 'object' && f !== null) return f.name === flavor;
+                return String(f) === flavor;
+            });
             if (index !== -1) {
                 const qtyDisplay = document.getElementById(`qty-flavor-${index}`);
                 if (qtyDisplay) {
@@ -1058,7 +1094,12 @@
         function removeFlavor(flavor) {
             variantQuantities[flavor] = 0;
             const flavors = currentProduct.flavour ? (Array.isArray(currentProduct.flavour) ? currentProduct.flavour : [currentProduct.flavour]) : [];
-            const index = flavors.indexOf(flavor);
+            // Find index by matching flavor name (since flavor parameter is the name string)
+            const index = flavors.findIndex(f => {
+                if (typeof f === 'string') return f === flavor;
+                if (typeof f === 'object' && f !== null) return f.name === flavor;
+                return String(f) === flavor;
+            });
             if (index !== -1) {
                 const qtyDisplay = document.getElementById(`qty-flavor-${index}`);
                 if (qtyDisplay) {

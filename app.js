@@ -787,6 +787,19 @@ function createProductCard(product) {
     const flavours = Array.isArray(product.flavour) ? product.flavour : (product.flavour ? [product.flavour] : []);
     const flavourCount = flavours.length;
     
+    // Helper function to extract flavour name from object or string
+    const getFlavourName = (flavour) => {
+        if (typeof flavour === 'string') {
+            return flavour;
+        } else if (typeof flavour === 'object' && flavour !== null) {
+            return flavour.name || String(flavour);
+        }
+        return String(flavour);
+    };
+    
+    // Get first flavour name for display
+    const firstFlavourName = flavourCount > 0 ? getFlavourName(flavours[0]) : '';
+    
     // Get image URL - use Firebase URL if available, otherwise use static image
     const imageUrl = window.getImageUrl ? window.getImageUrl(product.image, 'product', product.brand, product.name) : (product.image || window.getStaticProductImage ? window.getStaticProductImage(product.brand, product.name) : 'images/Foger/foger-switch-pro-30k-puffs-disposable-vape-pod.webp');
     
@@ -827,7 +840,7 @@ function createProductCard(product) {
                 ${flavourCount > 0 ? `
                     <div class="product-badge product-badge-flavor">
                         <i class="fas fa-palette"></i>
-                        <span>${flavours[0]}${flavourCount > 1 ? ` +${flavourCount - 1}` : ''}</span>
+                        <span>${firstFlavourName}${flavourCount > 1 ? ` +${flavourCount - 1}` : ''}</span>
                     </div>
                 ` : ''}
             </div>
