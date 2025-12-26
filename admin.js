@@ -841,6 +841,15 @@ function loadExistingData() {
     db.collection('products').onSnapshot((snapshot) => {
         loadProductsList(snapshot);
         populateFlavorProductsDropdown(snapshot);
+    }, (error) => {
+        console.error('Error in products onSnapshot listener:', error);
+    });
+    
+    // Also do an initial load to ensure products are available immediately
+    db.collection('products').get().then((snapshot) => {
+        populateFlavorProductsDropdown(snapshot);
+    }).catch((error) => {
+        console.error('Error in initial products load:', error);
     });
     
     // Slider image previews removed
@@ -881,13 +890,15 @@ function updateFlavorDropdown() {
 // Populate products dropdown in flavour modal
 function populateFlavorProductsDropdown(snapshot) {
     const flavourProductsSelect = document.getElementById('flavourProducts');
-    if (!flavourProductsSelect) return;
+    if (!flavourProductsSelect) {
+        console.warn('flavourProducts select element not found');
+        return;
+    }
     
     // Store current selected value
     const currentValue = flavourProductsSelect.value;
     
-    // Clear existing options except the first "Loading..." option
-    const loadingOption = flavourProductsSelect.querySelector('option[value=""]');
+    // Clear existing options
     flavourProductsSelect.innerHTML = '';
     
     // Add default option
@@ -896,7 +907,19 @@ function populateFlavorProductsDropdown(snapshot) {
     defaultOption.textContent = 'Select Product';
     flavourProductsSelect.appendChild(defaultOption);
     
+    // Check if snapshot is valid
+    if (!snapshot) {
+        console.error('Invalid snapshot provided to populateFlavorProductsDropdown');
+        const errorOption = document.createElement('option');
+        errorOption.value = '';
+        errorOption.textContent = 'Error loading products';
+        errorOption.disabled = true;
+        flavourProductsSelect.appendChild(errorOption);
+        return;
+    }
+    
     if (snapshot.empty) {
+        console.log('No products found in snapshot');
         const noProductsOption = document.createElement('option');
         noProductsOption.value = '';
         noProductsOption.textContent = 'No products available';
@@ -906,13 +929,22 @@ function populateFlavorProductsDropdown(snapshot) {
     }
     
     // Populate with products
+    let productCount = 0;
     snapshot.forEach((doc) => {
         const product = doc.data();
+        if (!product) {
+            console.warn('Product data is null for document:', doc.id);
+            return;
+        }
+        
         const option = document.createElement('option');
         option.value = doc.id;
         option.textContent = product.name || `Product ${doc.id}`;
         flavourProductsSelect.appendChild(option);
+        productCount++;
     });
+    
+    console.log(`Populated ${productCount} products in flavour dropdown`);
     
     // Restore previous selection if it still exists
     if (currentValue) {
@@ -1519,17 +1551,26 @@ function openFlavorModal() {
             resetFlavorForm();
         }
         
-        // Ensure products dropdown is populated
-        const flavourProductsSelect = document.getElementById('flavourProducts');
-        if (flavourProductsSelect && flavourProductsSelect.options.length <= 1) {
-            // If dropdown is empty or only has default option, load products
-            db.collection('products').get().then((snapshot) => {
-                populateFlavorProductsDropdown(snapshot);
-            }).catch((error) => {
-                console.error('Error loading products for flavour modal:', error);
-                flavourProductsSelect.innerHTML = '<option value="">Error loading products</option>';
-            });
-        }
+        // Always ensure products dropdown is populated when modal opens
+        // Use a small delay to ensure modal DOM is fully rendered
+        setTimeout(() => {
+            const flavourProductsSelect = document.getElementById('flavourProducts');
+            if (flavourProductsSelect) {
+                // Always reload products to ensure dropdown is up-to-date
+                console.log('Loading products for flavour modal dropdown...');
+                db.collection('products').get().then((snapshot) => {
+                    console.log('Products snapshot received:', snapshot.size, 'products');
+                    populateFlavorProductsDropdown(snapshot);
+                }).catch((error) => {
+                    console.error('Error loading products for flavour modal:', error);
+                    if (flavourProductsSelect) {
+                        flavourProductsSelect.innerHTML = '<option value="">Error loading products</option>';
+                    }
+                });
+            } else {
+                console.error('flavourProducts select element not found in modal');
+            }
+        }, 100);
         
         // Scroll modal body to top
         const modalBody = modal.querySelector('.product-modal-body');
