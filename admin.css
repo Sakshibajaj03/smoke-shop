@@ -1318,10 +1318,7 @@ select.input-field:focus {
     color: #111827;
 }
 
-/* Product Image Cell */
-.product-image-cell {
-    width: 120px;
-}
+
 
 .product-table-image {
     width: 80px;
