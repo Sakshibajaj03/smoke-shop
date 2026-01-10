@@ -181,9 +181,15 @@ function filterProductsBySearch(query) {
             const description = (product.description || '').toLowerCase();
             return name.includes(query) || brand.includes(query) || flavourStr.includes(query) || description.includes(query);
         });
-        renderProducts(filteredFeatured, document.getElementById('featuredProductsGrid'));
+        const featuredProductsGrid = document.getElementById('featuredProductsGrid');
+        if (featuredProductsGrid) {
+            renderProducts(filteredFeatured, featuredProductsGrid);
+        }
     } else {
-        renderProducts(featuredProducts, document.getElementById('featuredProductsGrid'));
+        const featuredProductsGrid = document.getElementById('featuredProductsGrid');
+        if (featuredProductsGrid) {
+            renderProducts(featuredProducts, featuredProductsGrid);
+        }
     }
 }
 
@@ -686,8 +692,14 @@ function loadProducts() {
         featuredProducts = [];
         
         if (snapshot.empty) {
-            document.getElementById('allProductsGrid').innerHTML = '<div class="loading">No products available. Add some from the admin panel!</div>';
-            document.getElementById('featuredProductsGrid').innerHTML = '<div class="loading">No featured products available.</div>';
+            const allProductsGrid = document.getElementById('allProductsGrid');
+            const featuredProductsGrid = document.getElementById('featuredProductsGrid');
+            if (allProductsGrid) {
+                allProductsGrid.innerHTML = '<div class="loading">No products available. Add some from the admin panel!</div>';
+            }
+            if (featuredProductsGrid) {
+                featuredProductsGrid.innerHTML = '<div class="loading">No featured products available.</div>';
+            }
             return;
         }
         
@@ -707,16 +719,22 @@ function loadProducts() {
         // Update brand filter dropdown
         updateBrandFilter();
         
-        // Update product counts
+        // Update product counts (only if elements exist)
         updateProductCountsIndex(allProducts.length, allProducts.length);
         
-        // Render products
+        // Render products (only if elements exist)
         renderAllProducts();
         renderFeaturedProducts();
     }, (error) => {
         console.error('Error loading products:', error);
-        document.getElementById('allProductsGrid').innerHTML = '<div class="loading">Error loading products</div>';
-        document.getElementById('featuredProductsGrid').innerHTML = '<div class="loading">Error loading featured products</div>';
+        const allProductsGrid = document.getElementById('allProductsGrid');
+        const featuredProductsGrid = document.getElementById('featuredProductsGrid');
+        if (allProductsGrid) {
+            allProductsGrid.innerHTML = '<div class="loading">Error loading products</div>';
+        }
+        if (featuredProductsGrid) {
+            featuredProductsGrid.innerHTML = '<div class="loading">Error loading featured products</div>';
+        }
     });
 }
 
@@ -724,8 +742,12 @@ function loadProducts() {
 
 // Render all products
 function renderAllProducts() {
-    // Use filterAndSortProducts to apply any active filters
-    filterAndSortProducts();
+    // Only render if allProductsGrid element exists (not on index page)
+    const allProductsGrid = document.getElementById('allProductsGrid');
+    if (allProductsGrid) {
+        // Use filterAndSortProducts to apply any active filters
+        filterAndSortProducts();
+    }
 }
 
 // Render featured products
@@ -973,8 +995,11 @@ function filterAndSortProducts() {
     // Update active filters display
     updateActiveFiltersIndex();
     
-    // Render filtered products
-    renderProducts(filtered, document.getElementById('allProductsGrid'));
+    // Render filtered products (only if element exists)
+    const allProductsGrid = document.getElementById('allProductsGrid');
+    if (allProductsGrid) {
+        renderProducts(filtered, allProductsGrid);
+    }
 }
 
 // Update product counts on index page

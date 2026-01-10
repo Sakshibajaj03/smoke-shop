@@ -1470,6 +1470,7 @@ async function loadFlavoursList(snapshot) {
                             <option value="brand-desc">Brand (Z-A)</option>
                             <option value="id-asc">ID (A-Z)</option>
                             <option value="id-desc">ID (Z-A)</option>
+                            <option value="id-sequence">ID Sequence</option>
                         </select>
                     </div>
                     <button class="btn-clear-filters" onclick="clearFlavorFilters()" title="Clear All Filters">
@@ -1618,6 +1619,8 @@ function createFlavourCardAdmin(flavour, usageCount = 0) {
     card.dataset.flavorName = (flavour.name || '').toLowerCase();
     card.dataset.flavorBrand = (flavour.brand || '').toLowerCase();
     card.dataset.flavorId = (flavour.flavorId || flavour.id || '').toLowerCase();
+    card.dataset.flavorDocId = flavour.id || ''; // Store document ID for reliable lookup
+    card.dataset.flavorDisplayId = (flavour.flavorId || flavour.id || '').toLowerCase(); // Store display ID
     const flavorIdDisplay = flavour.flavorId || flavour.id || 'N/A';
     const brandName = flavour.brand || 'No Brand';
     card.innerHTML = `
@@ -2558,18 +2561,81 @@ function sortFlavorsTable(sortBy) {
     const grid = document.getElementById('flavoursGrid');
     if (!grid) return;
     
-    const cards = Array.from(grid.querySelectorAll('.flavor-row-item'));
+    // Get all cards, but only sort visible ones (respecting current filters)
+    const allCards = Array.from(grid.querySelectorAll('.flavor-row-item'));
     const allFlavors = window.allFlavors || [];
     
-    // Create a map for quick lookup
+    // Create a map for quick lookup - map by both document id and flavorId (both lowercase and original case)
     const flavorMap = new Map();
     allFlavors.forEach(flavor => {
-        flavorMap.set(flavor.id, flavor);
+        // Store by document id
+        if (flavor.id) {
+            flavorMap.set(flavor.id, flavor);
+            flavorMap.set(flavor.id.toLowerCase(), flavor);
+        }
+        // Store by flavorId if it exists
+        if (flavor.flavorId) {
+            flavorMap.set(flavor.flavorId, flavor);
+            flavorMap.set(flavor.flavorId.toLowerCase(), flavor);
+        }
     });
     
-    cards.sort((a, b) => {
-        const flavorA = flavorMap.get(a.dataset.flavorId || '');
-        const flavorB = flavorMap.get(b.dataset.flavorId || '');
+    // Helper function to extract numeric value from ID for proper numeric sorting
+    function extractNumericValue(id) {
+        if (!id) return 0;
+        
+        // Try to find all numeric sequences in the ID
+        const numericMatches = id.match(/\d+/g);
+        if (!numericMatches || numericMatches.length === 0) return 0;
+        
+        // Extract the first meaningful number (skip very small numbers like single digits in timestamps)
+        // Look for numbers that are likely sequence numbers (typically 1-4 digits at the end or after a prefix)
+        for (let match of numericMatches) {
+            const num = parseInt(match);
+            // Prefer numbers that look like sequence numbers (1-9999 range)
+            if (num > 0 && num < 10000) {
+                return num;
+            }
+        }
+        
+        // If no sequence-like number found, use the largest number
+        const maxNum = Math.max(...numericMatches.map(n => parseInt(n)).filter(n => !isNaN(n) && n > 0));
+        return isNaN(maxNum) ? 0 : maxNum;
+    }
+    
+    // Separate visible and hidden cards
+    const visibleCards = allCards.filter(card => card.style.display !== 'none');
+    const hiddenCards = allCards.filter(card => card.style.display === 'none');
+    
+    // Sort only visible cards
+    visibleCards.sort((a, b) => {
+        // Find flavor data using document ID (most reliable)
+        const docIdA = a.dataset.flavorDocId || '';
+        const docIdB = b.dataset.flavorDocId || '';
+        
+        // Look up flavor objects by document ID (most reliable method)
+        let flavorA = flavorMap.get(docIdA) || allFlavors.find(f => f.id === docIdA);
+        let flavorB = flavorMap.get(docIdB) || allFlavors.find(f => f.id === docIdB);
+        
+        // Fallback: try to find by flavorId or name+brand if document ID lookup fails
+        if (!flavorA) {
+            const flavorIdA = a.dataset.flavorDisplayId || a.dataset.flavorId || '';
+            const flavorNameA = a.dataset.flavorName || '';
+            const flavorBrandA = a.dataset.flavorBrand || '';
+            flavorA = allFlavors.find(f => 
+                ((f.flavorId || '').toLowerCase() === flavorIdA || f.id === flavorIdA) ||
+                ((f.name || '').toLowerCase() === flavorNameA && (f.brand || '').toLowerCase() === flavorBrandA)
+            );
+        }
+        if (!flavorB) {
+            const flavorIdB = b.dataset.flavorDisplayId || b.dataset.flavorId || '';
+            const flavorNameB = b.dataset.flavorName || '';
+            const flavorBrandB = b.dataset.flavorBrand || '';
+            flavorB = allFlavors.find(f => 
+                ((f.flavorId || '').toLowerCase() === flavorIdB || f.id === flavorIdB) ||
+                ((f.name || '').toLowerCase() === flavorNameB && (f.brand || '').toLowerCase() === flavorBrandB)
+            );
+        }
         
         if (!flavorA || !flavorB) return 0;
         
@@ -2591,16 +2657,51 @@ function sortFlavorsTable(sortBy) {
             case 'brand-desc':
                 return (flavorB.brand || '').localeCompare(flavorA.brand || '');
             case 'id-asc':
-                return (flavorA.flavorId || '').localeCompare(flavorB.flavorId || '');
+                return (flavorA.flavorId || flavorA.id || '').localeCompare(flavorB.flavorId || flavorB.id || '');
             case 'id-desc':
-                return (flavorB.flavorId || '').localeCompare(flavorA.flavorId || '');
+                return (flavorB.flavorId || flavorB.id || '').localeCompare(flavorA.flavorId || flavorA.id || '');
+            case 'id-sequence':
+                // Sort by ID in numerical sequence (1, 2, 3, 10, 20, not 1, 10, 2, 20, 3)
+                // Prefer flavorId over document id for sorting, as flavorId is more likely to have sequence numbers
+                const idA = (flavorA.flavorId || flavorA.id || '').toString();
+                const idB = (flavorB.flavorId || flavorB.id || '').toString();
+                
+                // Extract numeric values for proper numerical sorting
+                const numA = extractNumericValue(idA);
+                const numB = extractNumericValue(idB);
+                
+                // If both have numeric values, sort numerically (1, 2, 3, 10, 20)
+                if (numA > 0 && numB > 0) {
+                    if (numA !== numB) {
+                        return numA - numB;
+                    }
+                    // If numeric values are equal, sort by full ID alphabetically as secondary sort
+                    return idA.localeCompare(idB);
+                }
+                
+                // If one has numeric value and other doesn't, numeric comes first
+                if (numA > 0 && numB === 0) return -1;
+                if (numA === 0 && numB > 0) return 1;
+                
+                // If neither has numeric value or both are 0, sort by full ID alphabetically
+                // This ensures consistent ordering even for IDs without numbers
+                return idA.localeCompare(idB);
             default:
                 return 0;
         }
     });
     
-    // Re-append sorted cards
-    cards.forEach(card => grid.appendChild(card));
+    // Clear grid and re-append: visible cards first (sorted), then hidden cards
+    // Preserve display state by explicitly setting it
+    grid.innerHTML = '';
+    visibleCards.forEach(card => {
+        card.style.display = ''; // Ensure visible cards are shown
+        grid.appendChild(card);
+    });
+    hiddenCards.forEach(card => {
+        card.style.display = 'none'; // Ensure hidden cards remain hidden
+        grid.appendChild(card);
+    });
     
     // Update active filters
     updateActiveFlavorFilters();
@@ -2616,10 +2717,14 @@ function setupFlavorFilters() {
         searchInput.addEventListener('input', filterFlavors);
     }
     if (brandFilter) {
-        brandFilter.addEventListener('change', filterFlavors);
+        brandFilter.addEventListener('change', () => {
+            // When brand filter changes, filter first, then sort
+            filterFlavors();
+        });
     }
     if (sortSelect) {
         sortSelect.addEventListener('change', (e) => {
+            // When sort changes, apply the sort (which respects current filters)
             sortFlavorsTable(e.target.value);
             updateActiveFlavorFilters();
         });
@@ -2653,6 +2758,13 @@ function filterFlavors() {
             card.style.display = 'none';
         }
     });
+    
+    // Get current sort option and re-apply sorting after filtering
+    const sortSelect = document.getElementById('sortFlavors');
+    const currentSort = sortSelect ? sortSelect.value : 'newest';
+    
+    // Re-apply sorting to maintain order (especially important for ID Sequence)
+    sortFlavorsTable(currentSort);
     
     // Update flavor counts
     updateFlavorCounts(visibleCount, totalCount);
@@ -2716,7 +2828,8 @@ function updateActiveFlavorFilters() {
                 'brand-asc': 'Brand (A-Z)',
                 'brand-desc': 'Brand (Z-A)',
                 'id-asc': 'ID (A-Z)',
-                'id-desc': 'ID (Z-A)'
+                'id-desc': 'ID (Z-A)',
+                'id-sequence': 'ID Sequence'
             };
             const badge = document.createElement('span');
             badge.className = 'active-filter-badge';

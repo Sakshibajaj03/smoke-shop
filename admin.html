@@ -53,9 +53,12 @@
         <main class="admin-content">
             <!-- Brands Section -->
             <section id="brands" class="content-section active">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h2 style="margin: 0;">Manage Brands</h2>
-                    <button type="button" onclick="openBrandModal()" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                <div class="section-header">
+                    <div>
+                        <h2>Manage Brands</h2>
+                        <p class="section-subtitle">Add, edit, and manage your product brands</p>
+                    </div>
+                    <button type="button" onclick="openBrandModal()" class="btn btn-primary">
                         <i class="fas fa-plus"></i>
                         <span>Add New Brand</span>
                     </button>
@@ -199,9 +202,12 @@
 
             <!-- Products Section -->
             <section id="products" class="content-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h2 style="margin: 0;">Manage Products</h2>
-                    <button type="button" onclick="openProductModal()" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                <div class="section-header">
+                    <div>
+                        <h2>Manage Products</h2>
+                        <p class="section-subtitle">Add, edit, and manage your product catalog</p>
+                    </div>
+                    <button type="button" onclick="openProductModal()" class="btn btn-primary">
                         <i class="fas fa-plus"></i>
                         <span>Add New Product</span>
                     </button>
@@ -311,14 +317,16 @@
 
             <!-- Database Upload Section -->
             <section id="database" class="content-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h2 style="margin: 0;">Database Management</h2>
-                    <button type="button" onclick="exportDataToExcel()" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, #4CAF50, #45a049);">
+                <div class="section-header">
+                    <div>
+                        <h2>Database Management</h2>
+                        <p class="section-subtitle">Import and export your database data</p>
+                    </div>
+                    <button type="button" onclick="exportDataToExcel()" class="btn btn-success">
                         <i class="fas fa-file-excel"></i>
                         <span>Export to Excel</span>
                     </button>
                 </div>
-                <h3 style="margin-bottom: 1rem;">Import Database File</h3>
                 <div class="form-container">
                     <div class="upload-info">
                         <p><strong>Import database data from Excel file (.xlsx) to Firebase Firestore.</strong></p>
